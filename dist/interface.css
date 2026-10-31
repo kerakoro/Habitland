@@ -1,0 +1,122 @@
+@font-face{font-family:Quicksand;src:url('assets/quicksand.ttf') format('truetype');font-weight:500;font-display:swap}@font-face{font-family:Quicksand;src:url('assets/quicksand.ttf') format('truetype');font-weight:700;font-display:swap}@font-face{font-family:'Garden Story Sans';src:url('assets/garden-story-sans-medium.otf') format('opentype');font-weight:500;font-display:swap}
+:root{--ground:#d8d1c3;--paper:#f4efde}body,button,input,select,dialog,.seed-name,.upload-tile,.photo-controls label,#customTitle,#allTypes,#chooserTabs #allTypes,.drag-hint{font-family:Quicksand,Arial,sans-serif!important;font-weight:500}body{width:1512px}nav{height:102px;font-family:Quicksand,sans-serif}nav button{line-height:1;top:30px!important}button svg.outline-label{position:static!important;display:block;fill:currentColor!important;z-index:auto!important;flex-shrink:0}.outline-label{fill:currentColor!important;overflow:visible;vertical-align:middle;pointer-events:none}#siteTitle{position:absolute;left:0;top:8px;pointer-events:none;width:210px;height:88px}#siteTitle .outline-label{display:block;height:44px!important;width:auto!important}#plateView{left:225px!important;width:auto!important;height:auto!important;padding:10px!important;top:29px!important}#singleView{left:331px!important}#new{left:578px!important}#featuredView{left:720px!important}#storyView{left:971px!important}nav .save-action{right:-10px!important;top:30px!important;width:173px;height:50px;display:flex;justify-content:center;align-items:center;isolation:isolate}#export{background:none}#export:before{content:'';position:absolute;width:160px;height:28px;border-bottom:2px solid white;border-radius:0 0 70% 70%;top:3px;z-index:-1}#export:hover:before{border-color:black}#resetLayout,#grow{display:none!important}nav.publishing>button:not(.frame-action){display:none!important}.frame-action{position:absolute;right:0;top:35px!important;border:2px solid white;padding:0 15px;display:flex;align-items:center;justify-content:center;gap:12px;height:50px}#publishAction{width:130px}#createNew{width:216px}.frame-action:hover{background:#ffffff30}#publishAction .outline-label{width:76px!important;height:40px!important}#createNew .outline-label{width:185px!important;height:40px!important}
+main,#canvas{height:748px;width:1320px}#canvasTools{left:215px;right:auto;top:27px;bottom:auto;height:44px;gap:30px;z-index:4}#howToPlay{position:absolute;top:40px;left:40px;font-size:14px;padding:8px;margin:-8px;z-index:4}#howToPlay:hover,#back:hover,#allTypes:hover{color:white}#clearGarden{height:22px;width:68px;border:2px solid black;border-radius:4px;font-weight:700;font-size:14px}#wateringCan{width:78px;height:51px;touch-action:none;cursor:grab}#wateringCan svg{width:78px;height:51px}#wateringCan.held{opacity:.25;cursor:grabbing}#trash{width:42px;height:41px}#dragHint{top:108px;left:43px;font-size:14px}#back{position:absolute;left:40px;right:auto;top:32px!important;font-size:14px;padding:8px;margin-left:-8px;z-index:4}#back svg{display:none}#singleControls{padding:0 36px}#singleControls button{width:60px;height:60px}#singleControls svg{width:60px!important;height:60px!important}#helpPanel{position:absolute;left:16px;top:16px;width:400px;height:400px;background:rgba(255,255,255,.95);border-radius:30px;z-index:20;padding:50px 39px 28px;font-size:14px;line-height:1.3}#helpPanel p{margin:0 0 14px}#helpPanel b{font-weight:700}#closeHelp{position:absolute;right:20px;top:11px;font-size:28px;width:30px;height:30px;line-height:30px}#waterGhost{position:fixed;width:0;height:0;pointer-events:none;z-index:100}#waterGhost .tilted-can{position:absolute;left:-45px;top:-29px;width:90px;height:58px;transform:rotate(-45deg)}#waterGhost .tilted-can svg{width:90px;height:58px}#waterGhost .water-jets{position:absolute;left:-80px;top:0;width:160px;height:120px;overflow:visible;fill:none;stroke:#28a5df;stroke-width:5;stroke-linecap:round;stroke-dasharray:12 9;animation:waterfall .5s linear infinite}@keyframes waterfall{to{stroke-dashoffset:-42}}
+#collectedSection{margin-top:80px;padding-bottom:80px}#collectedSection h2{height:42px}#collectedSection h2>.outline-label{position:static;width:auto;height:40.6px}#collectedSection h2>.label-decoration{top:-8px;width:220px}#collectedList{margin-top:30px;gap:53px;align-items:flex-end}#collectedList .object-card,#collectedList .object-card canvas{width:183.75px;height:167px}.upload-tile{font-size:14px;font-weight:700}.collection-trash{width:43px;height:44px}#chooserSection{min-height:600px}#chooserTabs{height:89px}#chooserTabs button{padding:0!important;margin:0!important;top:0!important;line-height:1}#chooserTabs button>.label-decoration{left:0;top:0;height:40px}#chooserTabs button>.outline-label{position:static;height:40.6px}#chooserTabs #allTypes{top:9px!important;font:500 14px Quicksand,sans-serif!important;line-height:24px}body.single-view #chooserSection{margin-top:80px}#chooserSection #seedsSection{height:500px}.seed-grid{row-gap:54px}.seed-name{font-size:14px;font-weight:700;margin-top:5px}.seed-square{border-width:1px}.seed-ghost{position:fixed;z-index:110;pointer-events:none;width:60px;height:60px;background:#ffffffb0;border-radius:8px}.seed-ghost svg{width:60px;height:60px;stroke:black;fill:none}.catalogue{padding-top:30px}#moreHint{position:absolute;left:150px;top:-16px;font-size:14px;pointer-events:none}#moreHint span{display:block;font-size:32px;line-height:30px;margin-left:40px}#notice{display:none}#customTitle{font-size:14px}.photo-controls label{font-size:14px}
+.screen{width:1320px;margin:0 96px;position:relative}#publishPage{height:748px;background:var(--paper)}#publishPreview{display:block;width:1320px;height:748px;object-fit:contain}.panel-back{position:absolute;left:40px;top:40px;font-size:14px}.panel-back:hover{color:white}#titleForm{position:absolute;left:40px;bottom:40px;font-size:21px;font-weight:700}#titleForm label{display:block;line-height:1.25;margin-bottom:28px}#gardenTitle{display:block;width:448px;height:50px;border:2px solid white;border-radius:0;background:#f4efdebf;padding:9px 18px;color:black;font-size:21px;font-weight:500;outline-offset:3px}#publishError{position:absolute;font-size:13px;font-weight:500;color:#944735;top:100%;margin:7px 0}#publishedMessage{position:absolute;left:40px;top:40px;font-size:21px;font-weight:700;margin:0}#publishedTitle{position:absolute;left:40px;bottom:40px;margin:0;font-size:28px;font-weight:700;max-width:1000px;overflow-wrap:anywhere}#downloadDisplay{position:absolute;bottom:25px;right:25px;display:flex;align-items:center;gap:9px}#downloadDisplay .outline-label{width:102px!important;height:30px!important}#downloadDisplay:hover{color:white}#featuredPage{padding-top:28px}#displayGrid{display:grid;grid-template-columns:repeat(3,402px);gap:40px 57px}.display-card{display:block;text-align:left;width:402px;font-size:14px}.display-card img{display:block;width:402px;height:227.8px;object-fit:contain;background:var(--paper)}.display-card span{display:block;margin-top:7px;overflow-wrap:anywhere}.display-card:hover span{color:white}#galleryEmpty{font-size:18px;margin-top:60px}#galleryStatus{font-size:12px;color:#5e584c;margin-top:30px}
+#storyPage{background:var(--paper);padding:80px 0 160px}.story-column{width:757px;margin:auto}.story-column h1{font:700 28pt/1.25 Quicksand,sans-serif;text-align:center;margin:0 0 45px}.story-column p{font:500 21pt/1.28 Quicksand,sans-serif;margin:0 0 26px;overflow-wrap:break-word}.story-column p[lang=zh-CN]{font-family:'Garden Story Sans',sans-serif;line-height:1.45}.story-photo{display:block;object-fit:cover;width:500px;height:333.33px;margin-bottom:26px}.photo-right{margin-left:auto}.photo-wide{width:757px;height:504.66px}.story-image-pair{display:flex;gap:26px;align-items:flex-end}.story-image-pair .story-photo:last-child{width:230px;height:230px}.story-ending{display:grid;grid-template-columns:449.77px 281.23px;gap:26px;align-items:start}.story-ending>.story-photo{width:281.23px;height:420px}
+@media(prefers-reduced-motion:reduce){#waterGhost .water-jets{animation:none}}
+
+html{scrollbar-gutter:stable}.arrow-back{display:flex;gap:4px;align-items:center}.arrow-back svg{display:block!important;width:12px!important;height:16px!important;fill:none!important;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}#publishPreview{height:620px}#publishPage:has(#titleForm:not([hidden])) #publishPreview{height:600px}.frame-action span{font-size:26px}
+.arrow-back svg{position:static!important;z-index:auto!important;flex-shrink:0}
+/* Version 7: original outlined assets, positioned in the 1512px artboard. */
+:root{--ground:#cec5b9;--paper:#f4efde}html,body{background:var(--ground)}.design-vector{display:block;max-width:none;overflow:visible;pointer-events:none;flex-shrink:0}button .design-vector{position:static!important;fill:initial!important;z-index:auto!important}nav{height:102px}.removed-action,#singleView{display:none!important}#siteTitle{left:-7px;top:20px;width:166px;height:66px}#siteTitle svg{width:166px!important;height:66px!important}nav #plateView,nav #featuredView,nav #storyView{width:auto!important;height:auto!important;padding:10px!important;margin:-10px!important;background:none}nav #plateView{left:183.3px!important;top:54.35px!important}nav #featuredView{left:400.66px!important;top:54.35px!important}nav #storyView{left:615.74px!important;top:57.84px!important}nav #export{left:1154px!important;right:auto!important;top:43px!important;width:178px;height:49px;padding:0;margin:0}#export:before{display:none}nav button{--decoration:white}nav button:hover,nav button.active{color:white;--decoration:black}nav.publishing>button:not(.frame-action){display:none!important}#publishAction,#createNew{right:-2px;top:34px!important;padding:0;border:0;width:auto;height:auto}#publishAction svg,#createNew svg{width:auto!important;height:54px!important}#createNew:hover,#publishAction:hover{background:none}
+main,#canvas{width:1320px;height:720px}#canvasTools{position:absolute;left:auto;right:35px;top:25px;bottom:auto;width:362px;height:45px;display:block;z-index:4}#canvasTools button{position:absolute;display:block;padding:0!important;margin:0!important;border:0;background:none;border-radius:0}#wateringCan{left:0;top:1.57px;width:79.28px;height:43.57px}#wateringCan svg{width:79.28px;height:43.57px}#canvasTools #new{left:101.73px!important;top:12.46px!important;width:96.45px!important;height:24.06px!important}#clearGarden{left:220.63px;top:12.46px;width:69.97px;height:24.06px}#trash{left:318.08px;top:0;width:43.18px;height:44.42px}#trash svg{width:43.18px;height:44.42px}#clearGarden:hover,#new:hover{color:white}#howToPlay{left:40.22px;top:41.39px;padding:10px;margin:-10px;font-weight:700}#helpPanel{font-weight:500;padding-top:54px}#helpPanel b{font-weight:700}#closeHelp{left:20px;right:auto;top:20px;width:16px;height:16px;display:flex;align-items:center;justify-content:center}#closeHelp svg{width:11.76px;height:11.76px}#helpPanel p{margin-bottom:13px}#waterGhost .tilted-can{left:-39.64px;top:-21.785px;width:79.28px;height:43.57px;transform:rotate(-45deg);transform-origin:center}#waterGhost .tilted-can svg{width:79.28px;height:43.57px}#waterGhost .water-jets{height:120px;animation:none;overflow:visible;stroke:#2ca8da;stroke-width:4.8;stroke-dasharray:none}.jet-start{stroke-dasharray:none}.falling-jet{stroke-dasharray:10 12;animation:waterfall .48s linear infinite}.falling-jet:nth-child(4){animation-delay:-.16s}.falling-jet:nth-child(6){animation-delay:-.31s}#canvas.seed-received{outline:2px solid #ffffffa0;outline-offset:-2px}
+#collectedSection h2{height:48px}#collectedSection h2 svg{position:static!important;width:236px!important;height:48px!important;fill:initial!important}#chooserTabs button svg.design-vector{width:auto!important;height:auto!important}#chooserTabs button{--decoration:white}#chooserTabs button.active,#chooserTabs button:hover{--decoration:black}#seedTab{color:black}#collectedSection h2{color:black}#chooserTabs #seedTab{left:-4px;top:0!important}#chooserTabs #otherTab{right:0;top:0!important}#chooserTabs{height:78px}#chooserTabs.variant #seedTab{visibility:hidden}#back,#chooserTabs #allTypes,#publishBack{font-weight:700}#back .design-vector,#chooserTabs #allTypes .design-vector,#publishBack .design-vector{width:42.84px!important;height:13.13px!important;fill:initial!important;stroke:none!important}#back{left:39px;top:40px!important;padding:10px;margin:-10px}#previous svg,#next svg{width:59.92px!important;height:61.02px!important;transform:none!important}#moreHint{left:548px;top:8px;font-weight:700}#moreHint svg{width:114.64px;height:45.31px}#otherList{padding-top:30px}#collectedList .upload-tile{font-weight:700}#collectedList .upload-tile>svg{left:45.58px;top:37px;width:48px;height:67px}.seed-name{font-weight:700!important}.seed-button{touch-action:none}.upload-tile span{font-weight:700}
+dialog,dialog button,dialog label,dialog input,#customTitle,.photo-controls label,#customStatus,#photoSlot,#generatedSlot{font-family:Quicksand,sans-serif!important;font-weight:700!important;font-size:14pt!important}#closeUpload{width:11.76px;height:11.76px}#customStatus{font-size:11px!important}#customTitle{line-height:1.25}#customPreview{background:transparent}
+#publishPage.publication-layout{width:1320px;min-height:760px;height:auto;background:transparent}#publishPage #publishPreview,#publishPage:has(#titleForm:not([hidden])) #publishPreview{display:block;width:1000px;height:545.4545px;object-fit:contain;background:var(--paper)}#publishBack{left:40px;top:40px;padding:10px;margin:-10px}#titleForm{position:relative;left:40px;bottom:auto;top:30px;width:650px;display:flex;flex-direction:column;align-items:flex-start}#gardenTitle{order:1;width:448px;height:50px;border:1px solid #1c1a18;background:transparent;font-size:21pt;font-weight:700;border-radius:0}#gardenTitle::placeholder{color:rgba(0,0,0,.3);opacity:1}#titleForm label{order:2;margin:30px 0 0;font-weight:700;font-size:21pt;line-height:1.2}#publishError{order:3;position:static;font-size:14px}#publishedTitle{left:40px;top:575.4545px;bottom:auto;font-size:28pt;font-weight:700;max-width:800px}#publishedMessage{left:40px;top:655.4545px;font-size:21pt;font-weight:700}#downloadDisplay{left:904px;right:auto;top:579px;bottom:auto;padding:0;font-weight:700}#downloadDisplay svg{width:92.35px!important;height:16.37px!important}#displayGrid{grid-template-columns:repeat(3,400px);column-gap:60px}.display-card,.display-card img{width:400px}.display-card img{height:218.1818px}.display-card span{font-weight:700}
+@media(prefers-reduced-motion:reduce){.falling-jet{animation:none}}
+
+@keyframes waterfall{to{stroke-dashoffset:-44}}
+
+#collectedList .upload-tile{background:transparent}#collectedList .upload-tile>svg.design-vector{position:static!important;left:auto;top:auto;width:137.45px;height:137.45px}.seed-name{display:flex;align-items:center;justify-content:center;height:22px}.seed-name svg{display:block;width:auto;height:auto;max-width:none}#collectedSection h2{height:41.54px}#collectedSection h2 svg{transform:translate(-7px,-4px)}
+
+#customStatus{font-size:14pt!important;line-height:1.25;font-weight:700!important}
+/* Illustrator's point values are represented by the supplied 1512px artwork coordinates. */
+dialog,dialog button,dialog label,dialog input,#customTitle,.photo-controls label,#customStatus,#photoSlot,#generatedSlot{font-size:14px!important}#customStatus{font-size:14px!important}#gardenTitle,#titleForm label,#publishedMessage{font-size:21px}#publishedTitle{font-size:28px}.story-column h1{font-size:28px}.story-column p{font-size:21px;line-height:1.2}.story-column p[lang=zh-CN]{line-height:1.2}
+
+/* 7.1: supplied SVG paths are kept verbatim; source artboard backgrounds are excluded. */
+#siteTitle{pointer-events:auto;cursor:pointer}#siteTitle:focus-visible{outline:1px dashed currentColor;outline-offset:4px}#siteTitle svg{pointer-events:none}#trash,#trash svg{width:42.98px;height:44.22px}#chooserTabs #otherTab svg.design-vector{width:160.84px!important;height:40.51px!important}#collectedList .upload-tile{position:relative}#collectedList .upload-tile>.upload-label{position:absolute;left:34px;top:45px;z-index:1;text-align:left;font:700 14px/16.8px Quicksand,sans-serif;pointer-events:none}#collectedList .upload-tile>svg.design-vector{position:absolute!important;inset:0;width:137.45px;height:137.45px}
+
+/* Drag hint matches the Quicksand Bold weight of Click to get more. */
+#dragHint{font-weight:700}
+
+/* 7.2: story revisions and the same colour interaction on the home title. */
+#siteTitle{color:black;--decoration:white}#siteTitle:hover,#siteTitle:focus-visible,#siteTitle:active{color:white;--decoration:black}.story-column{width:700px}.story-column h1{font-size:21px}.story-column p{font-size:18px}.story-photo{width:450px;height:300px}.photo-wide{width:700px;height:466.6667px}.story-image-pair{gap:20px}.story-image-pair .story-photo:last-child{width:230px;height:230px}.story-ending{grid-template-columns:minmax(0,1fr) 281.23px;gap:26px}.story-ending>.story-photo{width:281.23px;height:420px}
+
+/* 7.4: source-layout spacing, help artwork and plant reset target. */
+#canvasTools{width:376.2px}
+#canvasTools #resetPlant{left:101.73px!important;top:12.46px!important;width:110.99px!important;height:23.86px!important;touch-action:none}
+#resetPlant svg{width:110.99px;height:23.86px}
+#resetPlant:hover,#resetPlant.over{color:white}
+#resetPlant.over{outline:2px dashed currentColor;outline-offset:7px;border-radius:4px}
+#clearGarden{left:235.37px}#trash{left:332.82px}
+#howToPlay{left:31.67px;top:35.88px;padding:10px;margin:-10px}
+#howToPlay svg{width:118.57px;height:23.86px}
+#helpPanel{left:23.49px;top:20.22px;width:650px;height:650px;padding:0;border-radius:18px;background:rgba(255,255,255,.95);font-size:18px;z-index:20}
+#helpPanel .guide-artwork{position:absolute;left:48.67px;top:50.95px;width:553.41px;height:550.11px}
+#helpPanel .guide-artwork>svg{display:block;width:553.41px;height:550.11px}
+#helpPanel #closeHelp{left:13.02px!important;top:13.02px;width:11.56px;height:11.56px;padding:6px;margin:-6px;box-sizing:content-box}
+#closeHelp svg{width:11.56px;height:11.56px}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap;border:0}
+#collectedSection{margin-top:50px;padding-bottom:50px}
+#collectedList{margin-top:20px;column-gap:53px;row-gap:20px}
+#chooserTabs{height:61.54px}
+#chooserSection .seed-grid{row-gap:24.5px}
+#chooserSection #seedsSection{height:395px}
+#chooserSection{min-height:460px}
+body.single-view #chooserSection{margin-top:50px}
+
+/* 7.5 — three tabs and six-column catalogues, from the supplied outlined artwork. */
+@font-face{font-family:'Garden Story Sans Normal';src:url('assets/garden-story-sans-normal.otf') format('opentype');font-weight:350;font-display:swap}
+.story-column p[lang=zh-CN]{font-family:'Garden Story Sans Normal',sans-serif;font-weight:350}
+#chooserSection{margin:49.01px 96px 0;min-height:0;width:1320px;padding:0}
+#chooserTabs{height:40.32px;display:block}
+#chooserTabs #otherTab,#chooserTabs #seedTab,#chooserTabs #historyTab{position:absolute!important;right:auto!important;margin:0!important;padding:0!important;color:black;--decoration:white}
+#chooserTabs #otherTab{left:-5.72px!important;top:0!important}
+#chooserTabs #seedTab{left:209.95px!important;top:3.14px!important}
+#chooserTabs #historyTab{left:468.75px!important;top:4.33px!important}
+#chooserTabs #otherTab svg.design-vector{width:160.63px!important;height:40.32px!important}
+#chooserTabs #seedTab svg.design-vector{width:206.92px!important;height:40.41px!important}
+#chooserTabs #historyTab svg.design-vector{width:117.9px!important;height:37.09px!important}
+#chooserTabs #otherTab.active,#chooserTabs #otherTab:hover,#chooserTabs #seedTab.active,#chooserTabs #seedTab:hover,#chooserTabs #historyTab.active,#chooserTabs #historyTab:hover{color:white;--decoration:black}
+.tab-divider{position:absolute;left:182.47px;top:.59px;width:2px;height:40.33px;background:white;pointer-events:none}
+.tab-divider:nth-of-type(2){left:442.35px}
+#chooserTabs.variant #seedTab{visibility:visible}
+#chooserTabs #allTypes{left:auto!important;right:0!important;top:15px!important;font-weight:700!important}
+#chooserSection #otherSection,#chooserSection #historySection,#chooserSection #seedsSection{height:auto;min-height:0;width:1320px;margin:0}
+#otherList,#historyList{position:relative;display:grid;grid-template-columns:repeat(6,120px);column-gap:110px;row-gap:50px;width:1270px;margin:29px 25px 0;padding:0}
+#historyList{min-height:120px}
+#otherList .object-card,#otherList .object-card canvas,#historyList .object-card,#historyList .object-card canvas{display:block;width:120px;height:120px;margin:0;object-fit:contain}
+#otherList .object-card span,#historyList .object-card span{display:none}
+#moreHint{left:921px;top:-25px;width:114.64px;height:45.31px}
+#collectedSection{margin-top:50px;padding-bottom:100px;height:auto}
+#collectedList{margin-top:30px;column-gap:110px;row-gap:50px;padding-left:25px}
+#collectedList .object-card,#collectedList .object-card canvas{width:120px;height:120px;margin:0}
+#collectedList .upload-tile{width:120px;height:120px}
+#collectedList .upload-tile>svg.design-vector{width:120px;height:120px}
+#collectedList .upload-tile>.upload-label{left:29.68px;top:39.29px}
+#chooserSection .seed-grid{position:static;margin-top:30px;row-gap:48px}
+#chooserSection .seed-button{min-height:105.52px}
+body.single-view #chooserSection{margin-top:50px}
+body.single-view #chooserTabs #seedTab{left:0!important;top:0!important}
+body.single-view #chooserTabs #otherTab,body.single-view #historyTab,body.single-view .tab-divider{display:none!important}
+.ghost{width:120px;height:120px;object-fit:contain}
+#canvasTools{width:492.7px;right:33.66px;top:25px}
+#canvasTools #wateringCan{left:0;top:3.47px}
+#canvasTools #new{display:block;left:101.73px!important;top:14.3px!important;width:94.25px!important;height:21.86px!important}
+#canvasTools #new svg{width:94.25px;height:21.86px}
+#canvasTools #new span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 14px/1 Quicksand,sans-serif}
+#canvasTools #resetPlant{left:218.63px!important}
+#clearGarden{left:352.27px}#trash{left:449.72px}
+#waterHint{position:absolute;left:647.9px;top:5.96px;width:174.75px;height:18.86px;pointer-events:none;z-index:5}
+#waterHint svg{width:174.75px;height:18.86px}
+#dragHint{font-weight:700;pointer-events:none;z-index:3}
+#dragHint svg{display:block;width:126.16px;height:44.82px;margin:0;fill:initial}
+#scrollPrompt{position:absolute;left:1320px;bottom:0;width:96px;height:100px;pointer-events:none}
+#scrollPrompt svg{display:block;width:96px;height:83.76px}
+body.single-view #canvasTools{width:218.28px}
+body.single-view #canvasTools #resetPlant{left:107.29px!important}
+body.single-view #canvasTools #new,body.single-view #canvasTools #clearGarden,body.single-view #canvasTools #trash{display:none!important}
+#helpPanel #closeHelp{left:auto!important;right:24.1px!important;top:23.5px}
+#collectedList .upload-controls{display:flex;align-items:flex-end;gap:46.85px;flex-shrink:0}
+/* Match the 1320 × 748 drawing frame in the new four-page layout. */
+main,#canvas{height:748px}
+#publishPage #publishPreview,#publishPage:has(#titleForm:not([hidden])) #publishPreview{height:566.6667px}
+.display-card img{height:226.6667px}
+#publishedTitle{top:596.6667px}#publishedMessage{top:676.6667px}#downloadDisplay{top:600.2122px}
+
+/* 7.6: crisp retina thumbnails, corrected tab colours and separated hints. */
+#chooserTabs #otherTab,#chooserTabs #otherTab.active,#chooserTabs #otherTab:hover{color:black;--decoration:white}
+#chooserSection #otherSection{display:flow-root}
+#moreHint{top:-50px}
+#scrollPrompt{position:fixed;left:auto;right:0;bottom:20px}

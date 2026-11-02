@@ -1,10 +1,19 @@
-# Where Habit Take Root — 7.7 Netlify 部署包
+# Where Habit Take Root — 7.30 Netlify 部署包
 
-这一版保留 7.6 的布局与画风，增加 Netlify 照片识别接口，默认模型是 `gpt-6-luna`。模型只在服务器端指定，玩家不能从请求中切换模型。网站仍使用 Canvas 绘制速写容器。
+7.30 修改 Scroll down：关闭首图进入主页后立即出现；切到其他页面时隐藏，回主页仍保留；只有在主页下滑到底部后才消失，本次打开期间不再重新出现。刷新后重新提示。移除原5秒定时器、切页重置与其他页面触底误消失的旧逻辑。保留7.29的导航SVG和Film正文。
+
+- 以现有1512宽设计版心等比缩放，影片宽度按SVG的1080/1512比例呈现，保持16:9；文字与影片左对齐，内容顶部留白75、文字与影片间距50。
+- 中文使用思源黑体Regular（400），英文使用Quicksand Medium（500），文字字号与Story一致，为CSS 18px，行距1.2。新增字体为按页面文字制作的嵌入子集，原有字体和授权文件保留。
+- 影片仅在首次进入Film时加载，切走后发送暂停指令；支持YouTube播放器全屏及“Watch on YouTube”外链。在线视频需要网络，播放器的实际可用性也取决于YouTube及影片的嵌入设置。
+- 原有Garden、Single、Story、发布和展示页面继续共用整页缩放，窗口尺寸或屏幕方向变化时更新比例。拖拽浮层改为使用稳定的整页缩放值，避免隐藏画布尺寸为0时产生无效坐标；切换页面时结束浇水操作。
+- 保留现有土陶盆、土陶罐、烧水壶生成规则及GPT-6.1 Terra识别后端。线上已有OPENAI_MODEL环境变量时，仍需确保它为gpt-6.1-terra。
+
+检查覆盖Film导航、延迟加载、切页暂停、重复进入、多个屏幕宽度的缩放逻辑、零宽度回退、字体字重与中文字形覆盖、既有浇水及历史等交互。播放器实际播放未在此环境中完成浏览器验证。
+
 
 ## 一、先上传到 GitHub
 
-1. 解压 `Where_Habit_Take_Root_7.7_Netlify.zip`。
+1. 解压 `Where_Habit_Take_Root_7.30_Netlify.zip`。
 2. 打开解压后的 `Where_Habit_Take_Root` 文件夹。应看到 `dist`、`netlify`、`lib` 三个文件夹，以及 `netlify.toml`、`package.json`、`server.mjs`、`README.md` 四个文件。
 3. 在 GitHub 点击仓库名 `Habitland`，回到仓库文件列表，不要停留在 `Game website` 文件查看页。
 4. 点击 `Add file` → `Upload files`。
@@ -43,7 +52,7 @@
 | Key | Value |
 |---|---|
 | OPENAI_API_KEY | 你在 OpenAI 开发者平台创建的密钥 |
-| OPENAI_MODEL | gpt-6-luna（可不填，代码默认就是这个模型） |
+| OPENAI_MODEL | gpt-6.1-terra（可不填，代码默认就是这个模型） |
 
 如果账户提供作用范围选择，必须包含 Functions；没有此选项时使用默认可用范围。不要把密钥写进 HTML、JavaScript、README 或 GitHub 仓库，也不要发给聊天助手。添加或修改后重新部署。
 
@@ -52,7 +61,7 @@ OpenAI 项目需要有可用 API 额度和模型权限。配置密钥不等于�
 ## 四、检查是否部署正确
 
 1. 访问你的网站 `/api/analyse` 路径，例如在域名后加 `/api/analyse`。
-2. 应返回 JSON，包含 `configured: true` 和 `model: "gpt-6-luna"`。此 GET 检查不调用 AI、不产生识别费用；它只说明环境变量已被函数读到，并不代表密钥和额度已经验证成功。
+2. 应返回 JSON，包含 `configured: true` 和 `model: "gpt-6.1-terra"`。此 GET 检查不调用 AI、不产生识别费用；它只说明环境变量已被函数读到，并不代表密钥和额度已经验证成功。
 3. 回到 Upload My Container，上传一张背景较清晰的照片，点击 Generate。
 4. 成功后显示 AI contour and attributes extracted，并出现可编辑预览；确认后点击 Add to my collection。
 5. 若报错，可在 Netlify 的 Functions 日志中查看函数状态。代码不会主动记录照片和密钥，也不会把原始提供商错误或密钥返回网页。

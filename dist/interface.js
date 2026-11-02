@@ -1,18 +1,13 @@
 /* Where Habit Take Root — layout, watering, publication and story. */
 (async function(){
 let preserveGardenScroll=false;
-const outlines=await fetch('outlines.json').then(r=>r.json());
 const design=await fetch('design-assets.json').then(r=>r.json());
-function label(el,text){el.setAttribute('aria-label',text);el.innerHTML=outlines[text];}
-const style=document.createElement('link');style.rel='stylesheet';style.href='interface.css';document.head.append(style);
 // Fixed handwritten text is exported as vector paths; no Bradley font is installed or fetched.
 const nav=document.querySelector('nav');
-const brand=document.createElement('div');brand.id='siteTitle';brand.innerHTML=outlines['Where Habit']+outlines['Take Root'];brand.setAttribute('aria-label','Where Habit Take Root');nav.prepend(brand);
-$('plateView').classList.remove('brand');label($('plateView'),'Garden');label($('singleView'),'Single Container');label($('new'),'Recreate');
-for(const [id,text] of [['featuredView','Featured Displays'],['storyView','Story']]){let b=document.createElement('button');b.id=id;label(b,text);nav.append(b)}
-label($('export'),'Save');
+const brand=document.createElement('div');brand.id='siteTitle';brand.setAttribute('aria-label','Where Habit Take Root');nav.prepend(brand);
+$('plateView').classList.remove('brand');
+for(const [id,text] of [['featuredView','Featured Displays'],['storyView','Story'],['filmView','Film']]){let b=document.createElement('button');b.id=id;b.setAttribute('aria-label',text);nav.append(b)}
 $('resetLayout').hidden=true;$('grow').hidden=true;
-for(let [selector,text] of [['#collectedSection h2','My Collected Containers'],['#seedTab','Choose My Seeds'],['#otherTab','Other Containers']]){let el=document.querySelector(selector),decor=el.querySelector('svg')?.outerHTML||'';label(el,text);el.insertAdjacentHTML('afterbegin',decor.replace('<svg ','<svg class="label-decoration" '));}
 const main=document.querySelector('main');$('back').classList.remove('save-action');$('back').innerHTML='‹ Back';main.append($('back'));
 $('allTypes').innerHTML='‹ Back';
 const help=document.createElement('button');help.id='howToPlay';help.textContent='How to Play';main.append(help);
@@ -21,18 +16,19 @@ help.onclick=()=>{helpPanel.hidden=!helpPanel.hidden;help.setAttribute('aria-exp
 const canSVG=design.can;
 const waterButton=document.createElement('button');waterButton.id='wateringCan';waterButton.setAttribute('aria-label','Drag watering can to water containers');waterButton.innerHTML=canSVG;$('canvasTools').prepend(waterButton);
 const more=document.createElement('div');more.id='moreHint';more.innerHTML='Click to get more <span>↙</span>';$('otherSection').prepend(more);
-const originalChooserUpdate=updateChooser;updateChooser=function(){originalChooserUpdate();more.hidden=activeVariant!==null||chooserPage!=='containers';};
 let screen='garden',pendingSnapshot=null,currentDisplay=null;
-const publishPage=document.createElement('div');publishPage.id='publishPage';publishPage.className='screen';publishPage.hidden=true;publishPage.innerHTML=`<img id="publishPreview" alt="Preview of my garden"><button id="publishBack" class="panel-back">‹ Back</button><div id="titleForm"><label for="gardenTitle">Add a title to your garden. After publication<br>your garden will show up in the overview!</label><input id="gardenTitle" placeholder="Title" maxlength="80" autocomplete="off"><p id="publishError" role="alert"></p></div><p id="publishedMessage" hidden>Display published!</p><h1 id="publishedTitle" hidden></h1><button id="downloadDisplay" hidden>${outlines.Download}<span aria-hidden="true">↓</span></button>`;
+const publishPage=document.createElement('div');publishPage.id='publishPage';publishPage.className='screen';publishPage.hidden=true;publishPage.innerHTML=`<img id="publishPreview" alt="Preview of my garden"><button id="publishBack" class="panel-back">‹ Back</button><div id="titleForm"><label for="gardenTitle">Add a title to your garden. After publication<br>your garden will show up in the overview!</label><input id="gardenTitle" placeholder="Title" maxlength="80" autocomplete="off"><p id="publishError" role="alert"></p></div><p id="publishedMessage" hidden>Display published!</p><h1 id="publishedTitle" hidden></h1><button id="downloadDisplay" hidden>Download</button>`;
 document.body.append(publishPage);
-const publishAction=document.createElement('button');publishAction.id='publishAction';publishAction.className='frame-action';publishAction.setAttribute('aria-label','Publish');publishAction.innerHTML=outlines.Publish+'<span aria-hidden="true">→</span>';nav.append(publishAction);
-const newAction=document.createElement('button');newAction.id='createNew';newAction.className='frame-action';label(newAction,'Create a New One');nav.append(newAction);
+const publishAction=document.createElement('button');publishAction.id='publishAction';publishAction.className='frame-action';publishAction.setAttribute('aria-label','Publish');publishAction.textContent='Publish';nav.append(publishAction);
+const newAction=document.createElement('button');newAction.id='createNew';newAction.className='frame-action';newAction.setAttribute('aria-label','Create a New One');nav.append(newAction);
 const featured=document.createElement('div');featured.id='featuredPage';featured.className='screen';featured.hidden=true;featured.innerHTML='<div id="displayGrid"></div><p id="galleryEmpty" hidden>No displays yet. Create and publish my first garden.</p><p id="galleryStatus" role="status"></p>';document.body.append(featured);
-function navigate(next){screen=next;const garden=next==='garden';main.hidden=!garden;$('collectedSection').hidden=!garden||viewMode==='single';$('chooserSection').hidden=!garden;featured.hidden=next!=='featured';$('storyPage').hidden=next!=='story';publishPage.hidden=!['publish','complete'].includes(next);$('new').hidden=!garden||viewMode==='single';nav.classList.toggle('publishing',['publish','complete'].includes(next));publishAction.hidden=next!=='publish';newAction.hidden=next!=='complete';$('export').hidden=!garden||viewMode==='single';$('plateView').classList.toggle('active',garden);$('singleView').classList.toggle('active',garden&&viewMode==='single');$('featuredView').classList.toggle('active',next==='featured');$('storyView').classList.toggle('active',next==='story');$('howToPlay').hidden=!garden||viewMode==='single';$('canvasTools').hidden=!garden||viewMode==='single';$('back').hidden=!garden||viewMode!=='single';if(!garden)helpPanel.hidden=true;$('plateView').setAttribute('aria-pressed',String(garden));$('singleView').setAttribute('aria-pressed',String(garden&&viewMode==='single'));fitDesign();if(!preserveGardenScroll)window.scrollTo(0,0)}
+const filmPage=document.createElement('article');filmPage.id='filmPage';filmPage.className='screen film-screen';filmPage.hidden=true;filmPage.setAttribute('aria-label','Film');filmPage.innerHTML=`<div class="film-column"><div class="film-copy"><p lang="zh-CN">2021年，因为土地整理项目，外婆和舅舅所在的农村被告知需要拆迁，舅舅一家也因此搬到了城市生活。六年后的夏天，我回到老家农村，记忆中的场景都不复存在，取而代之的是大片的水稻田和工厂。此影片献给陪伴我成长的乡村，以及生活在那里的人们。</p><p lang="en-GB">In 2021, my grandmother and uncle's village was told to be demolished as part of a land consolidation project. My uncle and his family moved to the city after that. Six years later, in the summer, I returned to the home village. The landscape I remembered were gone, replaced by vast rice fields and factories.</p><p lang="en-GB">This film is dedicated to the village that was part of my childhood, and the people who lived there.</p></div><div class="film-video" id="filmVideo"></div><a class="film-external" href="https://youtu.be/U9eFvWcWcvQ" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></div>`;document.body.append(filmPage);
+function openFilmPlayer(){if($('filmPlayer'))return;const player=document.createElement('iframe');player.id='filmPlayer';player.className='film-player';player.title='Film — Where Habit Take Root';player.width=1080;player.height=607.5;player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';player.allowFullscreen=true;player.setAttribute('referrerpolicy','strict-origin-when-cross-origin');const url=new URL('https://www.youtube-nocookie.com/embed/U9eFvWcWcvQ');url.searchParams.set('enablejsapi','1');url.searchParams.set('playsinline','1');url.searchParams.set('rel','0');if(/^https?:$/.test(location.protocol))url.searchParams.set('origin',location.origin);player.src=url.href;$('filmVideo').append(player)}
+function pauseFilm(){const player=$('filmPlayer');player?.contentWindow?.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}),'https://www.youtube-nocookie.com')}
+function navigate(next){if(screen==='film'&&next!=='film')pauseFilm();if(next!=='garden')stopWater();screen=next;const garden=next==='garden';main.hidden=!garden;$('collectedSection').hidden=!garden||viewMode==='single';$('chooserSection').hidden=!garden;featured.hidden=next!=='featured';$('storyPage').hidden=next!=='story';filmPage.hidden=next!=='film';if(next==='film')openFilmPlayer();publishPage.hidden=!['publish','complete'].includes(next);$('new').hidden=!garden||viewMode==='single';nav.classList.toggle('publishing',['publish','complete'].includes(next));publishAction.hidden=next!=='publish';newAction.hidden=next!=='complete';$('export').hidden=!garden||viewMode==='single';$('plateView').classList.toggle('active',garden);$('singleView').classList.toggle('active',garden&&viewMode==='single');$('featuredView').classList.toggle('active',next==='featured');$('storyView').classList.toggle('active',next==='story');$('filmView').classList.toggle('active',next==='film');$('filmView').setAttribute('aria-current',next==='film'?'page':'false');$('howToPlay').hidden=!garden||viewMode==='single';$('canvasTools').hidden=!garden||viewMode==='single';$('back').hidden=!garden||viewMode!=='single';if(!garden)helpPanel.hidden=true;$('plateView').setAttribute('aria-pressed',String(garden));$('singleView').setAttribute('aria-pressed',String(garden&&viewMode==='single'));fitDesign();if(!preserveGardenScroll)window.scrollTo(0,0)}
 const oldView=setView;setView=function(mode){oldView(mode);if(viewMode==='single'&&items[selectedIndex]?.droppedSeeds?.length){seedSelection=new Set(items[selectedIndex].droppedSeeds);updateSeedButtons()}navigate('garden');syncSeedData()};
 const oldSelectSeed=selectSeed;selectSeed=function(k){if(viewMode==='single'&&items[selectedIndex])delete items[selectedIndex].droppedSeeds;oldSelectSeed(k);syncSeedData()};
-$('plateView').onclick=()=>setView('plate');$('singleView').onclick=()=>setView('single');$('storyView').onclick=()=>navigate('story');$('featuredView').onclick=()=>{navigate('featured');renderDisplays()};
-$('new').onclick=()=>{stopWater();hasInteracted=false;$('dragHint').hidden=viewMode==='single';if(viewMode==='single'&&items.length){let o=items[selectedIndex];items[selectedIndex]=makeContainer((o.seed+2654435761)>>>0,o.type);growth[selectedIndex]=null;render()}else{viewMode='plate';ui.seed.value=Math.floor(Math.random()*4294967296);generate()}navigate('garden');};
+$('plateView').onclick=()=>setView('plate');$('singleView').onclick=()=>setView('single');$('storyView').onclick=()=>navigate('story');$('filmView').onclick=()=>navigate('film');$('featuredView').onclick=()=>{navigate('featured');renderDisplays()};
 // Water grows only a container actually intersected by one of the visible blue jets.
 let water=null,waterGhost=null,waterFrame=null;
 function growOne(i){
@@ -42,7 +38,7 @@ function growOne(i){
  const resolved=[];for(const seed of seeds){let chosen=seed;if(seed==='mixed'){const choices=Object.keys(BOTANY).filter(x=>!resolved.includes(x)&&!seeds.includes(x));chosen=chooseFrom(choices,rng(o.seed^plantingRound^resolved.length*771))}if(!resolved.includes(chosen))resolved.push(chosen)}
  const plans=resolved.map((key,j)=>{const plan=plantPlan(o,key,Math.imul(plantingRound+j*71,2654435761));if(resolved.length===2){
   const saved=random;random=rng(o.seed^0x87a6);const g=geometry(o);random=saved;const soil=plantingSurface(o,g),oldX=plan.root[0],oldY=plan.root[1];plan.root[0]+=(j?1:-1)*plan.span*.48;plan.root[1]=soilAnchorY(o,soil,plan.root[0])??oldY;plan.span*=.5;
-  plan.stems=plan.stems.filter((_,index)=>index%2===0);for(const stem of plan.stems){const oldBase=stem.pts[0],baseX=plan.root[0]+oldBase[0]*.5,baseY=soilAnchorY(o,soil,baseX)??plan.root[1];stem.pts=stem.pts.map(([x,y])=>[x*.5,y-oldBase[1]+baseY-plan.root[1]]);stem.profile={...stem.profile,len:stem.profile.len?stem.profile.len*.87:stem.profile.len}}
+  plan.stems=plan.stems.filter((_,index)=>index%2===0);for(const stem of plan.stems){const oldBase=stem.pts[0],baseX=plan.root[0]+oldBase[0]*.5,baseY=soilAnchorY(o,soil,baseX)??plan.root[1];stem.pts=stem.pts.map(([x,y])=>[x*.5,y-oldBase[1]+baseY-plan.root[1]]);stem.profile={...stem.profile,len:stem.profile?.len?stem.profile.len*.87:stem.profile?.len}}
   plan.rosettes=plan.rosettes.slice(0,Math.max(1,Math.ceil(plan.rosettes.length/2)));for(const rosette of plan.rosettes){rosette.x*=.45;rosette.y=(soilAnchorY(o,soil,plan.root[0]+rosette.x)??plan.root[1])-plan.root[1];rosette.r*=.78}
   for(const fruit of plan.fruit){fruit.x*=.5;fruit.r*=.87}
  }return plan});
@@ -50,19 +46,19 @@ function growOne(i){
  if(viewMode==='single'&&!o.droppedSeeds?.length){o.individualSeed=resolved[0];o.seedChoices=[resolved[0]]}
  growth[i]={plan,progress:0,start:performance.now(),delay:0};if(animationId===null)animationId=requestAnimationFrame(animatePlants);compose();syncSeedData();
 }
-const drawOnePlant=drawPlant;drawPlant=function(o,p,t,x,y,scale){if(p.plans)for(const sub of p.plans)drawOnePlant(o,sub,t,x,y,scale);else drawOnePlant(o,p,t,x,y,scale)};
+const drawOnePlant=drawPlant;
 const jets=[{x1:-38,y1:12,x2:-58,y2:122},{x1:-36,y1:13.5,x2:-36,y2:134},{x1:-34,y1:15,x2:-11,y2:120}];
 function syncSeedData(){canvas.dataset.seedSlots=JSON.stringify(items.map(o=>o.droppedSeeds||[]));canvas.dataset.plants=JSON.stringify(growth.map(g=>g?.plan.seedType||null));}
 function addSeedToContainer(i,key){const o=items[i];if(!o)return;let prior=o.droppedSeeds||[];o.droppedSeeds=[...prior.filter(k=>k!==key),key].slice(-2);o.seedChoices=o.droppedSeeds.slice();delete o.individualSeed;if(viewMode==='single'){seedSelection=new Set(o.droppedSeeds);updateSeedButtons()}interact();syncSeedData();canvas.classList.add('seed-received');setTimeout(()=>canvas.classList.remove('seed-received'),260)}
 
-function waterTick(){if(!water)return;const b=canvas.getBoundingClientRect(),zoom=b.width/1320;waterGhost.style.left=(water.x/zoom)+'px';waterGhost.style.top=(water.y/zoom)+'px';const current=new Set();for(const jet of jets)for(let t=0;t<=1;t+=.06){const clientX=water.x+((1-t)*(1-t)*jet.x1+2*(1-t)*t*jet.x1+t*t*jet.x2)*zoom,clientY=water.y+((1-t)*(1-t)*jet.y1+2*(1-t)*t*50+t*t*jet.y2)*zoom;if(clientX<b.left||clientX>b.right||clientY<b.top||clientY>b.bottom)continue;const p=canvasPoint({clientX,clientY}),i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(i>=0)current.add(i)}for(const i of current)if(!water.hit.has(i)){water.hit.add(i);growOne(i)}waterFrame=requestAnimationFrame(waterTick);}
+function waterTick(){if(!water)return;const b=canvas.getBoundingClientRect();if(b.width<=0||b.height<=0){stopWater();return}const zoom=designScale();waterGhost.style.left=(water.x/zoom)+'px';waterGhost.style.top=(water.y/zoom)+'px';const current=new Set();for(const jet of jets)for(let t=0;t<=1;t+=.06){const clientX=water.x+((1-t)*(1-t)*jet.x1+2*(1-t)*t*jet.x1+t*t*jet.x2)*zoom,clientY=water.y+((1-t)*(1-t)*jet.y1+2*(1-t)*t*50+t*t*jet.y2)*zoom;if(clientX<b.left||clientX>b.right||clientY<b.top||clientY>b.bottom)continue;const p=canvasPoint({clientX,clientY}),i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(i>=0)current.add(i)}for(const i of current)if(!water.hit.has(i)){water.hit.add(i);growOne(i)}waterFrame=requestAnimationFrame(waterTick);}
 function stopWater(){if(!water)return;if(waterFrame!==null)cancelAnimationFrame(waterFrame);waterFrame=null;water=null;waterGhost?.remove();waterGhost=null;waterButton.classList.remove('held');}
 waterButton.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();interact();waterButton.setPointerCapture(e.pointerId);water={id:e.pointerId,x:e.clientX,y:e.clientY,hit:new Set()};waterGhost=document.createElement('div');waterGhost.id='waterGhost';waterGhost.innerHTML='<div class="tilted-can">'+canSVG+'</div><svg class="water-jets" viewBox="-80 0 160 120">'+jets.map(j=>`<path class="jet-start" d="M${j.x1} ${j.y1} L${j.x1} ${j.y1+7}"/><path class="falling-jet" d="M${j.x1} ${j.y1+5} Q${j.x1} 50 ${j.x2} ${j.y2}"/>`).join('')+'</svg>';document.body.append(waterGhost);waterButton.classList.add('held');waterTick();};
 waterButton.onpointermove=e=>{if(water&&water.id===e.pointerId){water.x=e.clientX;water.y=e.clientY}};waterButton.onpointerup=stopWater;waterButton.onpointercancel=stopWater;waterButton.onlostpointercapture=stopWater;
 window.addEventListener('blur',stopWater);
 // The same seed selection is honoured in Single Container and on a targeted seed drop.
 const oldDown=canvas.onpointerdown;canvas.onpointerdown=e=>{if(screen!=='garden'||viewMode==='single')return;oldDown(e)};
-for(const b of document.querySelectorAll('[data-seed]')){let seedDrag=null,seedGhost=null,seedScroll=null,pointerY=0;function endSeedScroll(){if(seedScroll!==null)clearInterval(seedScroll);seedScroll=null}b.onpointerdown=e=>{if(e.button!==0)return;seedDrag={x:e.clientX,y:e.clientY,id:e.pointerId,moved:false};b.setPointerCapture(e.pointerId)};b.onpointermove=e=>{pointerY=e.clientY;if(!seedDrag)return;if(Math.hypot(e.clientX-seedDrag.x,e.clientY-seedDrag.y)>6){seedDrag.moved=true;if(!seedGhost){seedGhost=document.createElement('div');seedGhost.className='seed-ghost';seedGhost.innerHTML=lineIcon(b.dataset.seed);document.body.append(seedGhost);seedScroll=setInterval(()=>{if(pointerY<100)window.scrollBy(0,-22);else if(pointerY>window.innerHeight-70)window.scrollBy(0,22)},32)}const z=canvas.getBoundingClientRect().width/1320;seedGhost.style.left=e.clientX/z-30+'px';seedGhost.style.top=e.clientY/z-30+'px';if(e.clientY<90)window.scrollBy(0,-20);else if(e.clientY>window.innerHeight-60)window.scrollBy(0,20)}};b.onpointerup=e=>{if(!seedDrag)return;endSeedScroll();let moved=seedDrag.moved;seedDrag=null;seedGhost?.remove();seedGhost=null;if(moved){const box=canvas.getBoundingClientRect();if(e.clientX>=box.left&&e.clientX<=box.right&&e.clientY>=box.top&&e.clientY<=box.bottom){const p=canvasPoint(e),i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(i>=0){addSeedToContainer(i,b.dataset.seed)}}b.dataset.suppressClick='true';setTimeout(()=>delete b.dataset.suppressClick,0)}if(b.hasPointerCapture(e.pointerId))b.releasePointerCapture(e.pointerId)};b.addEventListener('click',e=>{if(b.dataset.suppressClick){delete b.dataset.suppressClick;e.stopImmediatePropagation();e.preventDefault()}},true);b.onpointercancel=()=>{endSeedScroll();seedDrag=null;seedGhost?.remove();seedGhost=null};}
+for(const b of document.querySelectorAll('[data-seed]')){let seedDrag=null,seedGhost=null,seedScroll=null,pointerY=0;function endSeedScroll(){if(seedScroll!==null)clearInterval(seedScroll);seedScroll=null}b.onpointerdown=e=>{if(e.button!==0)return;seedDrag={x:e.clientX,y:e.clientY,id:e.pointerId,moved:false};b.setPointerCapture(e.pointerId)};b.onpointermove=e=>{pointerY=e.clientY;if(!seedDrag)return;if(Math.hypot(e.clientX-seedDrag.x,e.clientY-seedDrag.y)>6){seedDrag.moved=true;if(!seedGhost){seedGhost=document.createElement('div');seedGhost.className='seed-ghost';seedGhost.innerHTML=lineIcon(b.dataset.seed);document.body.append(seedGhost);seedScroll=setInterval(()=>{if(pointerY<100)window.scrollBy(0,-22);else if(pointerY>window.innerHeight-70)window.scrollBy(0,22)},32)}const z=designScale();seedGhost.style.left=e.clientX/z-30+'px';seedGhost.style.top=e.clientY/z-30+'px';if(e.clientY<90)window.scrollBy(0,-20);else if(e.clientY>window.innerHeight-60)window.scrollBy(0,20)}};b.onpointerup=e=>{if(!seedDrag)return;endSeedScroll();let moved=seedDrag.moved;seedDrag=null;seedGhost?.remove();seedGhost=null;if(moved){const box=canvas.getBoundingClientRect();if(e.clientX>=box.left&&e.clientX<=box.right&&e.clientY>=box.top&&e.clientY<=box.bottom){const p=canvasPoint(e),i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(i>=0){addSeedToContainer(i,b.dataset.seed)}}b.dataset.suppressClick='true';setTimeout(()=>delete b.dataset.suppressClick,0)}if(b.hasPointerCapture(e.pointerId))b.releasePointerCapture(e.pointerId)};b.addEventListener('click',e=>{if(b.dataset.suppressClick){delete b.dataset.suppressClick;e.stopImmediatePropagation();e.preventDefault()}},true);b.onpointercancel=()=>{endSeedScroll();seedDrag=null;seedGhost?.remove();seedGhost=null};}
 // IndexedDB stores images without localStorage's small string quota. A hosted server can share the same gallery.
 let dbPromise=null;function db(){if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open('where-habit-takes-root',1);req.onupgradeneeded=()=>req.result.createObjectStore('displays',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});return dbPromise}
 async function localList(){const database=await db();return new Promise((resolve,reject)=>{const r=database.transaction('displays').objectStore('displays').getAll();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
@@ -85,18 +81,17 @@ const backIcon='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8L1
 window.GardenApp={navigate,growOne,snapshot,listDisplays,saveDisplay,getScreen:()=>screen,addSeedToContainer,getState:()=>({items:items.length,grown:growth.map((g,i)=>g?i:null).filter(i=>i!==null),viewMode}),waterJets:jets};
 
 function placeVector(el,key,labelText){el.innerHTML=design[key];el.setAttribute('aria-label',labelText||key);const svg=el.querySelector('svg');svg.classList.add('design-vector')}
-placeVector($('siteTitle'),'brand','Where Habit Take Root — return to garden');$('siteTitle').setAttribute('role','button');$('siteTitle').tabIndex=0;$('siteTitle').onclick=()=>{stopWater();setView('plate')};$('siteTitle').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('siteTitle').click()}};placeVector($('plateView'),'garden','Build My Garden');placeVector($('featuredView'),'featured','Featured Displays');placeVector($('storyView'),'story','Story');placeVector($('export'),'save','Save');
+placeVector($('siteTitle'),'brand','Where Habit Take Root — return to garden');$('siteTitle').setAttribute('role','button');$('siteTitle').tabIndex=0;$('siteTitle').onclick=()=>{stopWater();setView('plate')};$('siteTitle').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('siteTitle').click()}};placeVector($('plateView'),'garden','Build My Garden');placeVector($('featuredView'),'featured','Featured Displays');placeVector($('storyView'),'story','Story');placeVector($('filmView'),'film','Film');placeVector($('export'),'save','Save');
 $('singleView').hidden=true;$('singleView').classList.add('removed-action');
 $('canvasTools').insertBefore($('new'),$('clearGarden'));$('new').classList.add('recreate-tool');placeVector($('new'),'reset-plant','Drag a container here to reset its plants');placeVector($('clearGarden'),'clear','Clear');placeVector($('trash'),'trash','Delete container by dragging it here');placeVector($('howToPlay'),'how-framed','How to Play');placeVector(waterButton,'can','Drag watering can to water containers');
 for(const [selector,key,labelText]of [['#collectedSection h2','collected','My Collected Containers'],['#seedTab','seed-tab','Choose My Seeds'],['#otherTab','other-tab','Other Containers'],['#previous','previous','Previous container'],['#next','next','Next container'],['#back','back','Back'],['#allTypes','back','Back'],['#publishBack','back','Back'],['#downloadDisplay','download','Download garden image']])placeVector(document.querySelector(selector),key,labelText);
 placeVector(publishAction,'publish','Publish');placeVector(newAction,'new-one','Create a New One');placeVector(more,'more','Click to get more');placeVector($('closeHelp'),'close','Close instructions');placeVector($('closeUpload'),'close','Close');
 // Preserve the original upload arrow independently of its editable label.
-const oldCollection=renderCollection;renderCollection=function(){oldCollection();const tile=document.querySelector('.upload-tile');if(tile){placeVector(tile,'upload-tile','Upload My Container');tile.insertAdjacentHTML('beforeend','<span class="upload-label">Upload<br>My<br>Container</span>')}};renderCollection();
+const oldCollection=renderCollection;renderCollection=function(){oldCollection();const tile=document.querySelector('.upload-tile');if(tile){placeVector(tile,'upload-tile','Upload My Container');tile.insertAdjacentHTML('beforeend','<span class="upload-label">Upload<br>My<br>Container</span>')}};
 $('publishPage').classList.add('publication-layout');
 $('gardenTitle').placeholder='Title';
 const originalPublicationMode=publicationMode;publicationMode=function(done){originalPublicationMode(done);publishPage.classList.toggle('completed',done)};
 for(const b of document.querySelectorAll('[data-seed]')){b.classList.add('bold-seed');b.setAttribute('aria-label',seedNames[b.dataset.seed]);const caption=b.querySelector('.seed-name');if(caption&&design['seed-'+b.dataset.seed])caption.innerHTML=design['seed-'+b.dataset.seed];}
-$('closeHelp').style.left='20px';$('closeHelp').style.right='auto';
 // Keep concrete container choices, independently of editable uploaded containers.
 function rememberContainer(o){
  if(!o)return;
@@ -117,8 +112,8 @@ canvas.onpointerdown=function(e){selectGardenContainer(e);if(e.button===0&&drag)
 // Reset affects only the dragged container; preserve its type, appearance and placement.
 const resetPlantButton=$('new');resetPlantButton.id='resetPlant';resetPlantButton.classList.remove('recreate-tool');
 resetPlantButton.onclick=()=>notice('Drag a container here to remove its plants and choose new seeds.');
-// The drawing engine still looks up its legacy new button while rendering.
-const legacyNew=document.createElement('button');legacyNew.id='new';legacyNew.hidden=true;legacyNew.className='removed-action';legacyNew.disabled=true;main.append(legacyNew);
+// Recreate and Reset Plant have separate identities and actions.
+const recreateButton=document.createElement('button');recreateButton.id='new';recreateButton.className='recreate-tool';main.append(recreateButton);
 function resetContainerPlant(i){
  if(!items[i])return;
  growth[i]=null;
@@ -179,13 +174,13 @@ animatePlants=function(now){
 helpPanel.querySelector('div').innerHTML=design['help-guide'];
 helpPanel.querySelector('div').className='guide-artwork';
 const guideDescription=document.createElement('p');guideDescription.className='sr-only';guideDescription.textContent='Choose containers from Other Containers or upload a photo. Drag unwanted containers to the bin, or use Clear to empty the garden. Rearrange containers. Choose seeds by clicking or dragging them into containers. Water to grow plants; water again to enlarge the same plants. Drag a container onto Reset Plant to remove its plants and choose new seeds. Save and publish your garden.';helpPanel.append(guideDescription);
-function showInstructions(){stopWater();helpPanel.hidden=false;help.setAttribute('aria-expanded','true');$('closeHelp').focus({preventScroll:true})}
+function showInstructions(focus=true){stopWater();helpPanel.hidden=false;help.setAttribute('aria-expanded','true');if(focus)$('closeHelp').focus({preventScroll:true})}
 $('plateView').onclick=()=>{setView('plate');showInstructions()};
 $('siteTitle').onclick=()=>{setView('plate');showInstructions()};
 Object.assign(window.GardenApp,{resetContainerPlant,enlargePlant,rememberContainer,getHistory:()=>JSON.parse(JSON.stringify(historyContainers)),getPlantState:i=>growth[i]?{species:growth[i].plan.seedType,seed:growth[i].plan.seed,size:plantSize(growth[i].plan),target:growth[i].plan.waterBoost?.to||growth[i].plan.waterSize||1}:null});
 syncSeedData();
 
-/* 7.5 layout and interactions are installed before startup below. */
+/* Catalogue layout and interactions. */
 // Three catalogues share the first panel below the drawing canvas.
 const collected74=renderCollection;renderCollection=function(){collected74();const tile=document.querySelector('.upload-tile'),bin=$('collectionTrash');if(tile&&bin){const pack=document.createElement('div');pack.className='upload-controls';tile.parentNode.insertBefore(pack,tile);pack.append(tile,bin)}if($('historyList'))renderHistory()};
 const chooser=$('chooserSection'),tabs=$('chooserTabs');
@@ -209,9 +204,12 @@ showTypes=function(){
   el.append(card(o));
  });updateChooser();
 };
+let variantShuffleRound=0;
 showVariants=function(type){
  chooserPage='containers';activeVariant=type;const el=$('otherList');el.replaceChildren();
- for(let i=0;i<24;i++)el.append(card(makeContainer(62000+i*439,type),true));
+ const specimens=Array.from({length:24},(_,i)=>makeContainer(62000+i*439,type));
+ if(['kettle','clayBasin','clayJar','foldingBasin','coconutShell','biscuitTin','ceramicBowl','ceramicPot'].includes(type)){const shuffle=rng((Date.now()^++variantShuffleRound)>>>0);for(let i=specimens.length-1;i>0;i--){let j=Math.floor(shuffle()*(i+1));[specimens[i],specimens[j]]=[specimens[j],specimens[i]]}}
+ specimens.forEach(o=>el.append(card(o,true)));
  updateChooser();chooser.scrollIntoView({behavior:'smooth',block:'start'});
 };
 updateChooser=function(){
@@ -252,25 +250,72 @@ const waterDown74=waterButton.onpointerdown;
 waterButton.onpointerdown=e=>{if(e.button!==0)return;waterUsed=true;waterHint.hidden=true;waterDown74(e)};
 
 // Restore Recreate alongside Reset Plant, without using reset to reroll the garden.
-legacyNew.disabled=false;legacyNew.classList.remove('removed-action');$('canvasTools').insertBefore(legacyNew,resetPlantButton);
-placeVector(legacyNew,'recreate-frame','Recreate');legacyNew.insertAdjacentHTML('beforeend','<span>Recreate</span>');
-legacyNew.onclick=()=>{stopWater();gardenOrganised=false;hasInteracted=false;viewMode='plate';ui.seed.value=Math.floor(Math.random()*4294967296);generate();setView('plate');updateHints()};
+$('canvasTools').insertBefore(recreateButton,resetPlantButton);
+placeVector(recreateButton,'recreate-frame','Recreate');recreateButton.insertAdjacentHTML('beforeend','<span>Recreate</span>');
+recreateButton.onclick=()=>{stopWater();gardenOrganised=false;hasInteracted=false;viewMode='plate';ui.seed.value=Math.floor(Math.random()*4294967296);generate();setView('plate');updateHints()};
 resetPlantButton.onclick=()=>{if(viewMode==='single'&&items[selectedIndex]){resetContainerPlant(selectedIndex);rememberContainer(items[selectedIndex])}};
 const grow74=growOne;growOne=function(i){grow74(i);if(items[i])rememberContainer(items[i])};
 const addSeed74=addSeedToContainer;
 addSeedToContainer=function(i,key){addSeed74(i,key);if(!items[i])return;rememberContainer(items[i]);if(viewMode==='single'){growth[i]=null;growOne(i)}};
 
-// Keep the prompt visible through scrolling until the bottom of the page is reached.
-const scrollPrompt=document.createElement('div');scrollPrompt.id='scrollPrompt';scrollPrompt.hidden=true;placeVector(scrollPrompt,'scroll-down','Scroll down');main.append(scrollPrompt);
-let scrollTimer=null,reachedBottom=false;
+// Dismiss only after a scroll reaches the garden bottom during this page visit.
+const scrollPrompt=document.createElement('div');scrollPrompt.id='scrollPrompt';scrollPrompt.hidden=true;placeVector(scrollPrompt,'scroll-down','Scroll down');document.body.append(scrollPrompt);
+let reachedGardenBottom=false,introActive=true;
 function pageAtBottom(){return window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-3}
-function dismissScrollPrompt(){reachedBottom=true;scrollPrompt.hidden=true;if(scrollTimer!==null)clearTimeout(scrollTimer);scrollTimer=null}
-function armScrollPrompt(){if(scrollTimer!==null)clearTimeout(scrollTimer);scrollPrompt.hidden=true;reachedBottom=pageAtBottom();if(reachedBottom)return;scrollTimer=setTimeout(()=>{scrollTimer=null;if(screen==='garden'&&!reachedBottom&&!pageAtBottom())scrollPrompt.hidden=false},5000)}
-window.addEventListener('scroll',()=>{if(pageAtBottom())dismissScrollPrompt()},{passive:true});
-document.body.append(scrollPrompt);
+function updateScrollPrompt(){scrollPrompt.hidden=screen!=='garden'||introActive||reachedGardenBottom}
+window.addEventListener('scroll',()=>{
+ if(screen!=='garden'||introActive||reachedGardenBottom)return;
+ if(pageAtBottom()){reachedGardenBottom=true;updateScrollPrompt()}
+},{passive:true});
 const navigate74=navigate;
-navigate=function(next){navigate74(next);$('canvasTools').hidden=next!=='garden';legacyNew.hidden=next!=='garden'||viewMode==='single';updateHints();if(next==='garden'){if(!preserveGardenScroll)armScrollPrompt()}else{scrollPrompt.hidden=true;if(scrollTimer!==null)clearTimeout(scrollTimer)}};
+navigate=function(next){navigate74(next);$('canvasTools').hidden=next!=='garden';recreateButton.hidden=next!=='garden'||viewMode==='single';updateHints();updateScrollPrompt()};
 const setView74=setView;setView=function(mode){setView74(mode);updateHints()};
 Object.assign(window.GardenApp,{navigate,growOne,addSeedToContainer,rememberContainer,getHistory:()=>JSON.parse(JSON.stringify(historyContainers)),getCatalogueOrder:()=>catalogueOrder.slice()});
-chooserPage='containers';showTypes();renderCollection();updateChooser();navigate('garden');showInstructions();document.documentElement.dataset.ready='true';
+// Show the dedication on every page load, then introduce the existing game guide.
+function startGardenIntro(){
+ const intro=$('gardenIntro');
+ const html=document.documentElement,previousOverflow=html.style.overflow,previousGutter=html.style.scrollbarGutter;
+ // Remove the reserved scrollbar strip for the opening screen only.
+ html.style.scrollbarGutter='auto';html.style.overflow='hidden';
+ const blocked=Array.from(document.body.children).filter(el=>el!==intro);
+ const previousInert=blocked.map(el=>el.inert);
+ blocked.forEach(el=>{el.inert=true});
+ const fit=()=>{
+  // Explicit viewport pixels compensate for the garden's body zoom, including scrollbar changes.
+  const zoom=Number(document.body.style.zoom)||1;
+  intro.style.width=(window.innerWidth/zoom)+'px';
+  intro.style.height=(window.innerHeight/zoom)+'px';
+ };
+ fit();window.addEventListener('resize',fit);
+ let leaving=false,finished=false,cleanupTimer=null,revealTimer=null;
+ // Keep the garden prompt hidden while the dedication covers the page.
+ introActive=true;updateScrollPrompt();
+ const finish=()=>{
+  if(finished)return;finished=true;
+  if(cleanupTimer!==null)clearTimeout(cleanupTimer);if(revealTimer!==null)clearTimeout(revealTimer);
+  intro.removeEventListener('transitionend',onTransitionEnd);
+  intro.hidden=true;html.style.overflow=previousOverflow;html.style.scrollbarGutter=previousGutter;fitDesign();
+  blocked.forEach((el,i)=>{el.inert=previousInert[i]});
+  window.removeEventListener('resize',fit);
+  $('closeHelp').focus({preventScroll:true});introActive=false;updateScrollPrompt();
+ };
+ const onTransitionEnd=e=>{if(leaving&&e.target===intro&&e.propertyName==='opacity')finish()};
+ intro.addEventListener('transitionend',onTransitionEnd);
+ intro.onclick=e=>{
+  e.preventDefault();e.stopPropagation?.();if(leaving)return;leaving=true;
+  // Prepare the guide in this click, never in a delayed cleanup callback.
+  showInstructions(false);introActive=false;updateScrollPrompt();
+  intro.classList.remove('intro-visible');intro.classList.add('intro-leaving');
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){finish();return}
+  // Only unlock/remove the fading cover here; guide visibility never waits for this timer.
+  cleanupTimer=setTimeout(finish,220);
+ };
+ intro.focus({preventScroll:true});
+ // Give the transparent initial state a paint before starting its transition.
+ revealTimer=setTimeout(()=>{revealTimer=null;if(!leaving)intro.classList.add('intro-visible')},50);
+}
+chooserPage='containers';showTypes();renderCollection();updateChooser();navigate('garden');
+// Resolve local UI font metrics before revealing the first usable layout.
+if(document.fonts?.load)await Promise.all([document.fonts.load('500 21px Quicksand'),document.fonts.load('700 21px Quicksand')]).catch(()=>[]);
+startGardenIntro();document.documentElement.dataset.ready='true';
 })().catch(error=>{console.error(error);document.documentElement.dataset.ready='error'});

@@ -1,6 +1,22 @@
-# Where Habit Take Root — 7.30 Netlify 部署包
+# Where Habits Take Root — 7.36 Netlify 部署包
 
-7.30 修改 Scroll down：关闭首图进入主页后立即出现；切到其他页面时隐藏，回主页仍保留；只有在主页下滑到底部后才消失，本次打开期间不再重新出现。刷新后重新提示。移除原5秒定时器、切页重置与其他页面触底误消失的旧逻辑。保留7.29的导航SVG和Film正文。
+7.32 按新SVG和PDF更新主页交互、Story与Film：主页点击容器仅置顶，拖拽置顶保留；点击种子改为单选，浇水到未种植容器时使用当前选择，已有植物继续放大。Story新增五组独立滑动轮播（3/4/5/3/3张），照片按PDF页序，第三组为半正文宽的正方形；右侧保留拍摄说明、© Ke Yue署名、灰/白圆点。鼠标在图片左右半边分别显示用户提供的左右箭头；键盘方向键和圆点也可切换。Film正文居中收窄到716px，视频宽度等其他内容不变。
+
+## Padlet入口
+
+Story文章底部增加“Doing the Same Things?”和“Share your garden and experience”。现已连接 https://padlet.com/kaceykeyue/share_your_gardens，在新标签页打开。链接同时写入HTML与 dist/site-config.json，配置加载失败时仍可使用HTML中的链接。修改配置后需重新部署；独立HTML需要随配置重新生成。
+
+所有版式继续按1512px设计画布等比缩放。轮播会响应减少动画偏好；新署名的中文已加入思源黑体Normal子集。AI识别功能保留7.31版；本次没有修改AI后端、发布接口或存储方式。
+
+## 本版上传识别
+
+- Generate：请求后端，若同模型、同识别规则、同照片的10分钟缓存仍有效则复用。Model 显示的是 API 响应中的 model，未返回时明确显示 not reported，不以请求名称冒充实际模型。
+- Re-analyse：绕过缓存，重新发起AI请求，会产生一次新的识别用量。两个按钮在请求期间禁用，关闭窗口或换照片会中止当前浏览器请求并丢弃过期结果。
+- New analysis / Cached analysis 表示新结果或服务器缓存。鼠标停留模型信息处可查看识别时间及响应ID（若提供方返回）。旧收藏没有这些信息时显示未报告。
+- 全部结构坐标共用照片坐标系。外轮廓、把手镂空、多色分区分别保存；编织是根据识别参数绘制的插画纹理，不能承诺逐根藤条复原。封闭瓶盖不再被通用土壤椭圆覆盖。Colour仍可调节整体配色，宽高调节会同时缩放镂空、色块和纹理。
+- 识别请求使用 GPT-6.1 Terra（环境变量OPENAI_MODEL可覆盖），推理强度low。旧收藏仍可显示与编辑，新绘制数据也随收藏和历史保存。
+- 必须同时更新 dist/、lib/、netlify/ 并重新部署。只有前端更新时会提示后端版本过旧，不会将旧返回值显示成新功能。
+- 完成模拟API、强制刷新/缓存/模型元数据、Canvas像素镂空/多色/纹理、旧收藏和常规交互检查。未使用真实密钥发起付费识别，未完成真实浏览器与真实照片效果验证。模型配置正确不代表已验证账户权限或实际准确率。
 
 - 以现有1512宽设计版心等比缩放，影片宽度按SVG的1080/1512比例呈现，保持16:9；文字与影片左对齐，内容顶部留白75、文字与影片间距50。
 - 中文使用思源黑体Regular（400），英文使用Quicksand Medium（500），文字字号与Story一致，为CSS 18px，行距1.2。新增字体为按页面文字制作的嵌入子集，原有字体和授权文件保留。
@@ -13,7 +29,7 @@
 
 ## 一、先上传到 GitHub
 
-1. 解压 `Where_Habit_Take_Root_7.30_Netlify.zip`。
+1. 解压 `Where_Habit_Take_Root_7.32_Netlify.zip`。
 2. 打开解压后的 `Where_Habit_Take_Root` 文件夹。应看到 `dist`、`netlify`、`lib` 三个文件夹，以及 `netlify.toml`、`package.json`、`server.mjs`、`README.md` 四个文件。
 3. 在 GitHub 点击仓库名 `Habitland`，回到仓库文件列表，不要停留在 `Game website` 文件查看页。
 4. 点击 `Add file` → `Upload files`。

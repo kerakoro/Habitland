@@ -1,17 +1,18 @@
-/* Where Habit Take Root — layout, watering, publication and story. */
+/* Where Habits Take Root — layout, watering, publication and story. */
 (async function(){
 let preserveGardenScroll=false;
 const design=await fetch('design-assets.json').then(r=>r.json());
+const siteConfig=await fetch('site-config.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Configuration unavailable');return r.json()}).catch(()=>({}));
 // Fixed handwritten text is exported as vector paths; no Bradley font is installed or fetched.
 const nav=document.querySelector('nav');
-const brand=document.createElement('div');brand.id='siteTitle';brand.setAttribute('aria-label','Where Habit Take Root');nav.prepend(brand);
+const brand=document.createElement('div');brand.id='siteTitle';brand.setAttribute('aria-label','Where Habits Take Root');nav.prepend(brand);
 $('plateView').classList.remove('brand');
 for(const [id,text] of [['featuredView','Featured Displays'],['storyView','Story'],['filmView','Film']]){let b=document.createElement('button');b.id=id;b.setAttribute('aria-label',text);nav.append(b)}
 $('resetLayout').hidden=true;$('grow').hidden=true;
 const main=document.querySelector('main');$('back').classList.remove('save-action');$('back').innerHTML='‹ Back';main.append($('back'));
 $('allTypes').innerHTML='‹ Back';
 const help=document.createElement('button');help.id='howToPlay';help.textContent='How to Play';main.append(help);
-const helpPanel=document.createElement('div');helpPanel.id='helpPanel';helpPanel.hidden=true;helpPanel.setAttribute('role','dialog');helpPanel.setAttribute('aria-label','How to Play');helpPanel.innerHTML=`<button id="closeHelp" aria-label="Close instructions">×</button><div><p><b>Step 1: Choose Your Containers</b><br>If you don’t like the containers on the plate, click ‘Recreate’ to get new ones, or choose from the ‘Other Containers’ catalogue.</p><p><b>Step 2: Organise Your Garden</b><br>Drag and rearrange the containers with your mouse until you are happy with the layout.</p><p><b>Step 3: Choose Your Seeds</b><br>Click to select the plants you want to grow from the seed library, or drag the seeds directly into your chosen containers.</p><p><b>Step 4: Water Your Plants</b><br>Water your plants and watch the magic happen!</p></div>`;main.append(helpPanel);
+const helpPanel=document.createElement('div');helpPanel.id='helpPanel';helpPanel.hidden=true;helpPanel.setAttribute('role','dialog');helpPanel.setAttribute('aria-label','How to Play');helpPanel.innerHTML=`<button id="closeHelp" aria-label="Close instructions">×</button><div><p><b>Step 1: Choose Your Containers</b><br>If you don’t like the containers on the plate, click ‘Recreate’ to get new ones, or choose from the ‘Other Containers’ catalogue.</p><p><b>Step 2: Organise Your Garden</b><br>Drag and rearrange the containers with your mouse until you are happy with the layout.</p><p><b>Step 3: Choose Your Seeds</b><br>Click to select the plants you want to grow from the seed library, or drag the seeds directly into your chosen containers.</p><p><b>Step 4: Water Your Plants</b><br>Drag the watering can to water your containers.</p></div>`;main.append(helpPanel);
 help.onclick=()=>{helpPanel.hidden=!helpPanel.hidden;help.setAttribute('aria-expanded',String(!helpPanel.hidden));if(!helpPanel.hidden)$('closeHelp').focus()};$('closeHelp').onclick=()=>{helpPanel.hidden=true;help.setAttribute('aria-expanded','false');help.focus()};document.addEventListener('keydown',e=>{if(e.key==='Escape'){helpPanel.hidden=true;stopWater()}});
 const canSVG=design.can;
 const waterButton=document.createElement('button');waterButton.id='wateringCan';waterButton.setAttribute('aria-label','Drag watering can to water containers');waterButton.innerHTML=canSVG;$('canvasTools').prepend(waterButton);
@@ -22,8 +23,8 @@ document.body.append(publishPage);
 const publishAction=document.createElement('button');publishAction.id='publishAction';publishAction.className='frame-action';publishAction.setAttribute('aria-label','Publish');publishAction.textContent='Publish';nav.append(publishAction);
 const newAction=document.createElement('button');newAction.id='createNew';newAction.className='frame-action';newAction.setAttribute('aria-label','Create a New One');nav.append(newAction);
 const featured=document.createElement('div');featured.id='featuredPage';featured.className='screen';featured.hidden=true;featured.innerHTML='<div id="displayGrid"></div><p id="galleryEmpty" hidden>No displays yet. Create and publish my first garden.</p><p id="galleryStatus" role="status"></p>';document.body.append(featured);
-const filmPage=document.createElement('article');filmPage.id='filmPage';filmPage.className='screen film-screen';filmPage.hidden=true;filmPage.setAttribute('aria-label','Film');filmPage.innerHTML=`<div class="film-column"><div class="film-copy"><p lang="zh-CN">2021年，因为土地整理项目，外婆和舅舅所在的农村被告知需要拆迁，舅舅一家也因此搬到了城市生活。六年后的夏天，我回到老家农村，记忆中的场景都不复存在，取而代之的是大片的水稻田和工厂。此影片献给陪伴我成长的乡村，以及生活在那里的人们。</p><p lang="en-GB">In 2021, my grandmother and uncle's village was told to be demolished as part of a land consolidation project. My uncle and his family moved to the city after that. Six years later, in the summer, I returned to the home village. The landscape I remembered were gone, replaced by vast rice fields and factories.</p><p lang="en-GB">This film is dedicated to the village that was part of my childhood, and the people who lived there.</p></div><div class="film-video" id="filmVideo"></div><a class="film-external" href="https://youtu.be/U9eFvWcWcvQ" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></div>`;document.body.append(filmPage);
-function openFilmPlayer(){if($('filmPlayer'))return;const player=document.createElement('iframe');player.id='filmPlayer';player.className='film-player';player.title='Film — Where Habit Take Root';player.width=1080;player.height=607.5;player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';player.allowFullscreen=true;player.setAttribute('referrerpolicy','strict-origin-when-cross-origin');const url=new URL('https://www.youtube-nocookie.com/embed/U9eFvWcWcvQ');url.searchParams.set('enablejsapi','1');url.searchParams.set('playsinline','1');url.searchParams.set('rel','0');if(/^https?:$/.test(location.protocol))url.searchParams.set('origin',location.origin);player.src=url.href;$('filmVideo').append(player)}
+const filmPage=document.createElement('article');filmPage.id='filmPage';filmPage.className='screen film-screen';filmPage.hidden=true;filmPage.setAttribute('aria-label','Film');filmPage.innerHTML=`<div class="film-column"><div class="film-copy"><p lang="zh-CN">2021年，因为土地整理项目，外婆和舅舅所在的农村被告知需要拆迁，舅舅一家也因此搬到了城市生活。六年后的夏天，我回到老家农村，记忆中的场景都不复存在，取而代之的是大片的水稻田和工厂。此影片献给陪伴我成长的乡村，以及生活在那里的人们。</p><p lang="en-GB">In 2021, my grandmother and uncle's village was told to be demolished as part of a land consolidation project. My uncle and his family moved to the city after that. Six years later, in the summer, I returned to the home village. The landscape I remembered were gone, replaced by vast rice fields and factories.</p><p lang="en-GB">This film is dedicated to the village that was part of my childhood, and the people who lived there.</p></div><div class="film-video" id="filmVideo"></div></div>`;document.body.append(filmPage);
+function openFilmPlayer(){if($('filmPlayer'))return;const player=document.createElement('iframe');player.id='filmPlayer';player.className='film-player';player.title='Film — Where Habits Take Root';player.width=1080;player.height=607.5;player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';player.allowFullscreen=true;player.setAttribute('referrerpolicy','strict-origin-when-cross-origin');const url=new URL('https://www.youtube-nocookie.com/embed/U9eFvWcWcvQ');url.searchParams.set('enablejsapi','1');url.searchParams.set('playsinline','1');url.searchParams.set('rel','0');if(/^https?:$/.test(location.protocol))url.searchParams.set('origin',location.origin);player.src=url.href;$('filmVideo').append(player)}
 function pauseFilm(){const player=$('filmPlayer');player?.contentWindow?.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}),'https://www.youtube-nocookie.com')}
 function navigate(next){if(screen==='film'&&next!=='film')pauseFilm();if(next!=='garden')stopWater();screen=next;const garden=next==='garden';main.hidden=!garden;$('collectedSection').hidden=!garden||viewMode==='single';$('chooserSection').hidden=!garden;featured.hidden=next!=='featured';$('storyPage').hidden=next!=='story';filmPage.hidden=next!=='film';if(next==='film')openFilmPlayer();publishPage.hidden=!['publish','complete'].includes(next);$('new').hidden=!garden||viewMode==='single';nav.classList.toggle('publishing',['publish','complete'].includes(next));publishAction.hidden=next!=='publish';newAction.hidden=next!=='complete';$('export').hidden=!garden||viewMode==='single';$('plateView').classList.toggle('active',garden);$('singleView').classList.toggle('active',garden&&viewMode==='single');$('featuredView').classList.toggle('active',next==='featured');$('storyView').classList.toggle('active',next==='story');$('filmView').classList.toggle('active',next==='film');$('filmView').setAttribute('aria-current',next==='film'?'page':'false');$('howToPlay').hidden=!garden||viewMode==='single';$('canvasTools').hidden=!garden||viewMode==='single';$('back').hidden=!garden||viewMode!=='single';if(!garden)helpPanel.hidden=true;$('plateView').setAttribute('aria-pressed',String(garden));$('singleView').setAttribute('aria-pressed',String(garden&&viewMode==='single'));fitDesign();if(!preserveGardenScroll)window.scrollTo(0,0)}
 const oldView=setView;setView=function(mode){oldView(mode);if(viewMode==='single'&&items[selectedIndex]?.droppedSeeds?.length){seedSelection=new Set(items[selectedIndex].droppedSeeds);updateSeedButtons()}navigate('garden');syncSeedData()};
@@ -33,7 +34,7 @@ $('plateView').onclick=()=>setView('plate');$('singleView').onclick=()=>setView(
 let water=null,waterGhost=null,waterFrame=null;
 function growOne(i){
  if(!items[i])return;if(growth[i]){enlargePlant(i);return}plantingRound++;const o=items[i];
- const pool=o.droppedSeeds?.length?o.droppedSeeds:viewMode==='single'?[...seedSelection]:o.individualSeed?[o.individualSeed]:o.seedChoices||[...seedSelection];
+ const pool=o.droppedSeeds?.length?o.droppedSeeds:[...seedSelection];
  let seeds=o.droppedSeeds?.length?o.droppedSeeds.slice(-2):[chooseFrom(pool,rng(o.seed^plantingRound))];
  const resolved=[];for(const seed of seeds){let chosen=seed;if(seed==='mixed'){const choices=Object.keys(BOTANY).filter(x=>!resolved.includes(x)&&!seeds.includes(x));chosen=chooseFrom(choices,rng(o.seed^plantingRound^resolved.length*771))}if(!resolved.includes(chosen))resolved.push(chosen)}
  const plans=resolved.map((key,j)=>{const plan=plantPlan(o,key,Math.imul(plantingRound+j*71,2654435761));if(resolved.length===2){
@@ -51,7 +52,37 @@ const jets=[{x1:-38,y1:12,x2:-58,y2:122},{x1:-36,y1:13.5,x2:-36,y2:134},{x1:-34,
 function syncSeedData(){canvas.dataset.seedSlots=JSON.stringify(items.map(o=>o.droppedSeeds||[]));canvas.dataset.plants=JSON.stringify(growth.map(g=>g?.plan.seedType||null));}
 function addSeedToContainer(i,key){const o=items[i];if(!o)return;let prior=o.droppedSeeds||[];o.droppedSeeds=[...prior.filter(k=>k!==key),key].slice(-2);o.seedChoices=o.droppedSeeds.slice();delete o.individualSeed;if(viewMode==='single'){seedSelection=new Set(o.droppedSeeds);updateSeedButtons()}interact();syncSeedData();canvas.classList.add('seed-received');setTimeout(()=>canvas.classList.remove('seed-received'),260)}
 
-function waterTick(){if(!water)return;const b=canvas.getBoundingClientRect();if(b.width<=0||b.height<=0){stopWater();return}const zoom=designScale();waterGhost.style.left=(water.x/zoom)+'px';waterGhost.style.top=(water.y/zoom)+'px';const current=new Set();for(const jet of jets)for(let t=0;t<=1;t+=.06){const clientX=water.x+((1-t)*(1-t)*jet.x1+2*(1-t)*t*jet.x1+t*t*jet.x2)*zoom,clientY=water.y+((1-t)*(1-t)*jet.y1+2*(1-t)*t*50+t*t*jet.y2)*zoom;if(clientX<b.left||clientX>b.right||clientY<b.top||clientY>b.bottom)continue;const p=canvasPoint({clientX,clientY}),i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(i>=0)current.add(i)}for(const i of current)if(!water.hit.has(i)){water.hit.add(i);growOne(i)}waterFrame=requestAnimationFrame(waterTick);}
+// Opening coordinates use exactly the same scale, yaw and roll as container drawing.
+function waterOpeningHit(i,p){
+ const o=items[i];if(!o||o.photoShape?.mouth?.visible===false)return false;
+ const single=viewMode==='single',size=single?2.35:1.25;
+ const origin=single?{x:1000,y:715}:{x:positions[i].x,y:positions[i].y+3.5};
+ const sx=size*o.scale*Math.cos(o.view.yaw*Math.PI/180)*.96,sy=size*o.scale;
+ if(Math.abs(sx)<.001||Math.abs(sy)<.001)return false;
+ const x=(p.x-origin.x)/sx,y=(p.y-origin.y)/sy,a=o.view.roll*Math.PI/180;
+ const local={x:x*Math.cos(a)+y*Math.sin(a),y:-x*Math.sin(a)+y*Math.cos(a)};
+ const saved=random;random=rng(o.seed^0x87a6);let surface;
+ try{const g=geometry(o),a=g.opening;surface=a.rect||openingPoints({...a,rx:a.rx+1.5,ry:a.ry+1.5})}finally{random=saved}
+ let inside=false;for(let n=0,j=surface.length-1;n<surface.length;j=n++){
+  const [ax,ay]=surface[n],[bx,by]=surface[j];
+  if((ay>local.y)!==(by>local.y)&&local.x<(bx-ax)*(local.y-ay)/(by-ay)+ax)inside=!inside;
+ }return inside;
+}
+function waterTargets(x,y,zoom){
+ const current=new Set(),box=canvas.getBoundingClientRect();
+ for(const jet of jets)for(let step=0;step<=120;step++){
+  const t=step/120,clientX=x+((1-t*t)*jet.x1+t*t*jet.x2)*zoom;
+  const clientY=y+((1-t)*(1-t)*jet.y1+2*(1-t)*t*50+t*t*jet.y2)*zoom;
+  if(clientX<box.left||clientX>box.right||clientY<box.top||clientY>box.bottom)continue;
+  const p=canvasPoint({clientX,clientY});
+  const i=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);
+  if(i<0)continue;
+  if(waterOpeningHit(i,p))current.add(i);
+  // A jet stops at the first visible container: walls and handles block water too.
+  break;
+ }return current;
+}
+function waterTick(){if(!water)return;const b=canvas.getBoundingClientRect();if(b.width<=0||b.height<=0){stopWater();return}const zoom=designScale();waterGhost.style.left=(water.x/zoom)+'px';waterGhost.style.top=(water.y/zoom)+'px';for(const i of waterTargets(water.x,water.y,zoom))if(!water.hit.has(i)){water.hit.add(i);growOne(i)}waterFrame=requestAnimationFrame(waterTick);}
 function stopWater(){if(!water)return;if(waterFrame!==null)cancelAnimationFrame(waterFrame);waterFrame=null;water=null;waterGhost?.remove();waterGhost=null;waterButton.classList.remove('held');}
 waterButton.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();interact();waterButton.setPointerCapture(e.pointerId);water={id:e.pointerId,x:e.clientX,y:e.clientY,hit:new Set()};waterGhost=document.createElement('div');waterGhost.id='waterGhost';waterGhost.innerHTML='<div class="tilted-can">'+canSVG+'</div><svg class="water-jets" viewBox="-80 0 160 120">'+jets.map(j=>`<path class="jet-start" d="M${j.x1} ${j.y1} L${j.x1} ${j.y1+7}"/><path class="falling-jet" d="M${j.x1} ${j.y1+5} Q${j.x1} 50 ${j.x2} ${j.y2}"/>`).join('')+'</svg>';document.body.append(waterGhost);waterButton.classList.add('held');waterTick();};
 waterButton.onpointermove=e=>{if(water&&water.id===e.pointerId){water.x=e.clientX;water.y=e.clientY}};waterButton.onpointerup=stopWater;waterButton.onpointercancel=stopWater;waterButton.onlostpointercapture=stopWater;
@@ -78,10 +109,10 @@ newAction.onclick=()=>{clearGarden();ui.seed.value=Math.floor(Math.random()*4294
 async function renderDisplays(){const grid=$('displayGrid');grid.replaceChildren();$('galleryStatus').textContent='Loading…';$('galleryEmpty').hidden=true;try{const list=await listDisplays();list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));for(const entry of list){const card=document.createElement('button');card.className='display-card';const img=document.createElement('img');img.src=entry.image;img.alt=entry.title;img.loading='lazy';const title=document.createElement('span');title.textContent=entry.title;card.append(img,title);card.onclick=()=>showDisplay(entry);grid.append(card)}$('galleryEmpty').hidden=!!list.length;$('galleryStatus').textContent=sharedGallery?'':'Displays are saved in this browser.';}catch(e){$('galleryStatus').textContent='Unable to load saved displays. Please try again.'}}
 // Public test hooks expose behavior and state, never credentials.
 const backIcon='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8L10 13"/></svg><span>Back</span>';for(const id of ['back','allTypes','publishBack']){const b=$(id);b.innerHTML=backIcon;b.classList.add('arrow-back');b.setAttribute('aria-label','Back')}
-window.GardenApp={navigate,growOne,snapshot,listDisplays,saveDisplay,getScreen:()=>screen,addSeedToContainer,getState:()=>({items:items.length,grown:growth.map((g,i)=>g?i:null).filter(i=>i!==null),viewMode}),waterJets:jets};
+window.GardenApp={navigate,growOne,snapshot,listDisplays,saveDisplay,getScreen:()=>screen,addSeedToContainer,getState:()=>({items:items.length,grown:growth.map((g,i)=>g?i:null).filter(i=>i!==null),viewMode}),waterJets:jets,waterOpeningHit,waterTargets};
 
 function placeVector(el,key,labelText){el.innerHTML=design[key];el.setAttribute('aria-label',labelText||key);const svg=el.querySelector('svg');svg.classList.add('design-vector')}
-placeVector($('siteTitle'),'brand','Where Habit Take Root — return to garden');$('siteTitle').setAttribute('role','button');$('siteTitle').tabIndex=0;$('siteTitle').onclick=()=>{stopWater();setView('plate')};$('siteTitle').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('siteTitle').click()}};placeVector($('plateView'),'garden','Build My Garden');placeVector($('featuredView'),'featured','Featured Displays');placeVector($('storyView'),'story','Story');placeVector($('filmView'),'film','Film');placeVector($('export'),'save','Save');
+placeVector($('siteTitle'),'brand','Where Habits Take Root — return to garden');$('siteTitle').setAttribute('role','button');$('siteTitle').tabIndex=0;$('siteTitle').onclick=()=>{stopWater();setView('plate')};$('siteTitle').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('siteTitle').click()}};placeVector($('plateView'),'garden','Build My Garden');placeVector($('featuredView'),'featured','Featured Displays');placeVector($('storyView'),'story','Story');placeVector($('filmView'),'film','Film');placeVector($('export'),'save','Save');
 $('singleView').hidden=true;$('singleView').classList.add('removed-action');
 $('canvasTools').insertBefore($('new'),$('clearGarden'));$('new').classList.add('recreate-tool');placeVector($('new'),'reset-plant','Drag a container here to reset its plants');placeVector($('clearGarden'),'clear','Clear');placeVector($('trash'),'trash','Delete container by dragging it here');placeVector($('howToPlay'),'how-framed','How to Play');placeVector(waterButton,'can','Drag watering can to water containers');
 for(const [selector,key,labelText]of [['#collectedSection h2','collected','My Collected Containers'],['#seedTab','seed-tab','Choose My Seeds'],['#otherTab','other-tab','Other Containers'],['#previous','previous','Previous container'],['#next','next','Next container'],['#back','back','Back'],['#allTypes','back','Back'],['#publishBack','back','Back'],['#downloadDisplay','download','Download garden image']])placeVector(document.querySelector(selector),key,labelText);
@@ -173,7 +204,7 @@ animatePlants=function(now){
 // The supplied guide is outlined vector artwork, including all five steps and icons.
 helpPanel.querySelector('div').innerHTML=design['help-guide'];
 helpPanel.querySelector('div').className='guide-artwork';
-const guideDescription=document.createElement('p');guideDescription.className='sr-only';guideDescription.textContent='Choose containers from Other Containers or upload a photo. Drag unwanted containers to the bin, or use Clear to empty the garden. Rearrange containers. Choose seeds by clicking or dragging them into containers. Water to grow plants; water again to enlarge the same plants. Drag a container onto Reset Plant to remove its plants and choose new seeds. Save and publish your garden.';helpPanel.append(guideDescription);
+const guideDescription=document.createElement('p');guideDescription.className='sr-only';guideDescription.textContent='Choose containers from Other Containers or upload a photo. Drag unwanted containers to the bin, or use Clear to empty the garden. Rearrange containers. Click a seed to select one plant type, or drag seeds into individual containers. Click a container to bring it to the front. Drag the watering can so its blue water reaches the container opening to grow the selected plant; water again to enlarge the same plants. Drag a container onto Reset Plant to remove its plants and choose new seeds. Save and publish your garden.';helpPanel.append(guideDescription);
 function showInstructions(focus=true){stopWater();helpPanel.hidden=false;help.setAttribute('aria-expanded','true');if(focus)$('closeHelp').focus({preventScroll:true})}
 $('plateView').onclick=()=>{setView('plate');showInstructions()};
 $('siteTitle').onclick=()=>{setView('plate');showInstructions()};
@@ -231,7 +262,7 @@ $('allTypes').onclick=()=>{chooserPage='containers';showTypes()};
 let gardenOrganised=false,waterUsed=false;
 interact=function(){hasInteracted=true};
 const dragHint=$('dragHint');placeVector(dragHint,'drag-organise','Drag it to organise');
-const waterHint=document.createElement('div');waterHint.id='waterHint';placeVector(waterHint,'water-hint','Watering your plants');main.append(waterHint);
+const waterHint=document.createElement('div');waterHint.id='waterHint';placeVector(waterHint,'water-hint','Drag it to water your plants');main.append(waterHint);
 function updateHints(){
  const plate=screen==='garden'&&viewMode==='plate';dragHint.hidden=!plate||gardenOrganised||items.length<3;waterHint.hidden=!plate||waterUsed;
  if(!dragHint.hidden&&objectHitLayers[2]){
@@ -271,6 +302,47 @@ const navigate74=navigate;
 navigate=function(next){navigate74(next);$('canvasTools').hidden=next!=='garden';recreateButton.hidden=next!=='garden'||viewMode==='single';updateHints();updateScrollPrompt()};
 const setView74=setView;setView=function(mode){setView74(mode);updateHints()};
 Object.assign(window.GardenApp,{navigate,growOne,addSeedToContainer,rememberContainer,getHistory:()=>JSON.parse(JSON.stringify(historyContainers)),getCatalogueOrder:()=>catalogueOrder.slice()});
+// Each gallery keeps its own index. Edge clones make previous/next wrap by one frame.
+function initialiseStoryGalleries(){
+ return Array.from(document.querySelectorAll('.story-slider')).map(figure=>{
+  const viewport=figure.querySelector('.story-slider-viewport'),track=figure.querySelector('.story-slider-track');
+  const photos=Array.from(track.querySelectorAll('.story-slide')),dots=Array.from(figure.querySelectorAll('.story-slider-dot')),count=photos.length;
+  let position=1,busy=false,timer=null,pending=null;
+  const clone=photo=>{const img=document.createElement('img');img.className='story-slide';img.src=photo.getAttribute('src');img.alt='';img.setAttribute('aria-hidden','true');img.decoding='async';return img};
+  track.prepend(clone(photos[count-1]));track.append(clone(photos[0]));
+  const current=()=>((position-1)%count+count)%count;
+  function label(){const index=current();figure.dataset.index=String(index);dots.forEach((dot,i)=>dot.setAttribute('aria-current',String(i===index)));photos.forEach((img,i)=>img.setAttribute('aria-hidden',String(i!==index)));figure.querySelector('.story-slider-status').textContent=`Photograph ${index+1} of ${count}`;photos[index].loading='eager'}
+  function snap(){track.style.transition='none';track.style.transform=`translateX(${-position*100}%)`;void track.offsetWidth;track.style.transition=''}
+  function finish(){if(!busy)return;busy=false;clearTimeout(timer);timer=null;if(position===0)position=count;else if(position===count+1)position=1;snap();const next=pending;pending=null;if(next)change(next)}
+  function change(action){
+   if(busy){pending=action;return}
+   if(action.index!==undefined){const index=Math.max(0,Math.min(count-1,action.index));if(index===current())return;position=index+1}
+   else position+=action.delta<0?-1:1;
+   label();busy=true;track.style.transform=`translateX(${-position*100}%)`;
+   if(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)finish();else timer=setTimeout(finish,410);
+  }
+  track.addEventListener('transitionend',e=>{if(e.target===track&&e.propertyName==='transform')finish()});
+  const direction=e=>{const box=viewport.getBoundingClientRect();return e.clientX<box.left+box.width/2?-1:1};
+  viewport.onpointermove=e=>{viewport.dataset.direction=direction(e)<0?'previous':'next'};
+  viewport.onpointerenter=viewport.onpointermove;
+  viewport.onclick=e=>change({delta:e.detail===0?1:direction(e)});
+  viewport.onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();change({delta:e.key==='ArrowLeft'?-1:1})}};
+  dots.forEach((dot,index)=>{dot.onclick=()=>change({index})});
+  snap();label();return {index:current,count};
+ });
+}
+const storyGalleryControllers=initialiseStoryGalleries();
+function setPadletUrl(value){
+ const link=$('storyShareLink');$('storyShareStatus').textContent='';let url=null;
+ try{const parsed=new URL(value);if(parsed.protocol==='https:')url=parsed.href}catch(e){}
+ link.setAttribute('href',url||'#');link.setAttribute('aria-disabled',String(!url));
+ if(url){link.setAttribute('target','_blank');link.setAttribute('rel','noopener noreferrer')}
+ link.onclick=e=>{if(!url){e.preventDefault();$('storyShareStatus').textContent='The sharing link is unavailable. Please try again.'}};
+ return !!url;
+}
+setPadletUrl(siteConfig?.padletUrl||$('storyShareLink').getAttribute('href'));
+Object.assign(window.GardenApp,{getStoryGalleryIndices:()=>storyGalleryControllers.map(g=>g.index()),setPadletUrl,getSelectedSeeds:()=>[...seedSelection]});
+
 // Show the dedication on every page load, then introduce the existing game guide.
 function startGardenIntro(){
  const intro=$('gardenIntro');

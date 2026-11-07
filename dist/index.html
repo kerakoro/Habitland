@@ -216,23 +216,42 @@ function drawClayParts(o,g){let s=o.structure;if(!s.clayForm)return false;let w=
  return true;
 }
 
-// Twelve representative kettle forms: nine hob kettles and three electric kettles.
+// Twelve base forms, plus a wide-mouth vintage hob kettle.
 const KETTLE_FORMS=['squat','conical','cylinder','tallShoulder','globular','broadBase','angular','oval','longSpout','electricCylinder','electricTapered','electricRetro'];
-function configureKettle(seed,s){let f=KETTLE_FORMS[Math.abs(Math.floor(seed/439))%12],electric=f.startsWith('electric');s.kettleVersion=725;s.kettleStyle=f;s.kettleElectric=electric;s.profile='straight';s.bodyProfile='rounded';s.basinForm='round';s.cookware=null;
- const profiles={squat:[[0,.47],[.14,.54],[.4,.98],[.68,1.02],[.86,.95],[1,.78]],conical:[[0,.49],[1,1]],cylinder:[[0,.78],[.17,1],[.86,1],[1,.94]],tallShoulder:[[0,.47],[.15,.55],[.33,.94],[.58,1],[.85,.98],[1,.84]],globular:[[0,.4],[.12,.41],[.31,.86],[.56,1.02],[.83,.9],[1,.64]],broadBase:[[0,.65],[.22,.84],[.48,.99],[.85,1],[1,.96]],angular:[[0,.48],[.14,.48],[.34,.97],[.86,1],[1,.88]],oval:[[0,.48],[.22,.78],[.5,1.04],[.77,1],[1,.79]],longSpout:[[0,.43],[.16,.5],[.41,.95],[.7,1],[1,.77]],electricCylinder:[[0,.91],[1,.96]],electricTapered:[[0,.65],[1,1]],electricRetro:[[0,.43],[.14,.47],[.4,.94],[.68,1.03],[.85,.95],[1,.76]]};
+// Pose is derived separately so changing the view cannot reroll material or wear.
+function kettlePose(seed){
+ const next=rng(seed^0x56ad31e7);
+ return {side:next()<.5?-1:1,angle:(next()*2-1)*.8,pitch:.19+next()*.17};
+}
+function configureKettle(seed,s){let f=KETTLE_FORMS[Math.abs(Math.floor(seed/439))%12];if(!f.startsWith('electric')&&rng(seed^0x8e2a3a91)()<.16)f='vintage';let electric=f.startsWith('electric');s.kettleVersion=743;s.kettleStyle=f;s.kettleElectric=electric;s.profile='straight';s.bodyProfile='rounded';s.basinForm='round';s.cookware=null;
+ const profiles={vintage:[[0,.97],[.17,1],[.46,.98],[.79,.91],[1,.83]],squat:[[0,.47],[.14,.54],[.4,.98],[.68,1.02],[.86,.95],[1,.78]],conical:[[0,.49],[1,1]],cylinder:[[0,.78],[.17,1],[.86,1],[1,.94]],tallShoulder:[[0,.47],[.15,.55],[.33,.94],[.58,1],[.85,.98],[1,.84]],globular:[[0,.4],[.12,.41],[.31,.86],[.56,1.02],[.83,.9],[1,.64]],broadBase:[[0,.65],[.22,.84],[.48,.99],[.85,1],[1,.96]],angular:[[0,.48],[.14,.48],[.34,.97],[.86,1],[1,.88]],oval:[[0,.48],[.22,.78],[.5,1.04],[.77,1],[1,.79]],longSpout:[[0,.43],[.16,.5],[.41,.95],[.7,1],[1,.77]],electricCylinder:[[0,.91],[1,.96]],electricTapered:[[0,.65],[1,1]],electricRetro:[[0,.43],[.14,.47],[.4,.94],[.68,1.03],[.85,.95],[1,.76]]};
  s.kettleProfile=profiles[f].map(p=>p.slice());s.neck=s.kettleProfile[0][1];s.bottom=s.kettleProfile.at(-1)[1];
- s.w=['squat','broadBase','oval'].includes(f)?R(69,87):f==='longSpout'?R(55,70):f==='tallShoulder'?R(48,64):R(52,73);
- let ratio=f==='squat'?[.91,1.3]:f==='oval'?[.8,1.17]:f==='conical'?[1.05,1.42]:f==='broadBase'?[1.08,1.42]:f==='tallShoulder'?[2.05,2.7]:f==='cylinder'?[1.45,2.05]:f==='globular'?[1.55,1.95]:f==='electricCylinder'?[1.95,2.55]:f==='electricTapered'?[1.9,2.45]:f==='electricRetro'?[1.35,1.8]:[1.35,1.8];s.h=Math.min(185,s.w*R(...ratio));
- s.kettleSpout=electric?(f==='electricRetro'?'shortCurve':'lip'):f==='longSpout'?'longCurve':pick(['shortStraight','shortCurve']);
- s.kettleGrip=electric?'side':f==='longSpout'?'round':pick(['round','round','angular','high']);s.kettleRise=R(.8,1.05);s.kettleReach=R(.92,1.06);s.kettleWhistle=!electric&&s.kettleSpout==='shortStraight'&&R()<.22;
+ s.w=f==='vintage'?R(68,81):['squat','broadBase','oval'].includes(f)?R(69,87):f==='longSpout'?R(55,70):f==='tallShoulder'?R(48,64):R(52,73);
+ let ratio=f==='vintage'?[1.08,1.27]:f==='squat'?[.91,1.3]:f==='oval'?[.8,1.17]:f==='conical'?[1.05,1.42]:f==='broadBase'?[1.08,1.42]:f==='tallShoulder'?[2.05,2.7]:f==='cylinder'?[1.45,2.05]:f==='globular'?[1.55,1.95]:f==='electricCylinder'?[1.95,2.55]:f==='electricTapered'?[1.9,2.45]:f==='electricRetro'?[1.35,1.8]:[1.35,1.8];s.h=Math.min(185,s.w*R(...ratio));
+ s.kettleSpout=electric?(f==='electricRetro'?'shortCurve':'lip'):f==='vintage'?'vintageCurve':f==='longSpout'?'longCurve':pick(['shortStraight','shortCurve']);
+ s.kettleGrip=electric?'side':(f==='longSpout'||f==='vintage')?'round':pick(['round','round','angular','high']);s.kettleRise=R(.8,1.05);s.kettleReach=R(.92,1.06);if(s.kettleSpout==='shortStraight'&&R()<.29)s.kettleSpout='hooked';
  s.kettleMaterial=electric?pick(['metal','plastic','metal']):pick(['metal','metal','metal','enamel']);s.kettleTint=s.kettleMaterial==='metal'?pick(['#abb0a8','#9eaaa9','#bbb9ab','#8d9c9b']):pick(['#bec5ba','#a9c0bd','#b3bec9','#c7b695','#b49b9b','#b1bca4']);
- s.kettleLid='removed';s.kettlePowerBase=electric;s.kettleWindow=electric&&R()<.6;s.rim=R(2.2,4);s.kettleSeam=R()<.4;
+ if(f==='vintage'){s.kettleMaterial='enamel';s.kettleTint=pick(['#bfd4b5','#b1cabb','#c4cbad','#c9bfb0']);}
+ s.kettlePowerBase=electric;s.kettleWindow=electric&&R()<.6;s.rim=R(2.2,4);s.kettleSeam=R()<.4;
 }
 function kettleRadius(s,t){return profileRadius(s.kettleProfile,t,s.kettleStyle==='angular')}
-function kettleGeometry(o,w,h,y,base){let s=o.structure,a={x:0,y,rx:w*s.neck,ry:Math.max(5,w*s.neck*.26)},bw=w*s.bottom,curved=!['conical','electricCylinder','electricTapered','angular'].includes(s.kettleStyle),end=curved?.85:1;
+function kettleGeometry(o,w,h,y,base){let s=o.structure,a={x:0,y,rx:w*s.neck,ry:Math.max(5,w*s.neck*(s.kettleStyle==='vintage'?kettlePose(o.seed).pitch*.73:kettlePose(o.seed).pitch))},bw=w*s.bottom,curved=!['conical','electricCylinder','electricTapered','angular'].includes(s.kettleStyle),end=curved?.85:1;
  let left=Array.from({length:65},(_,i)=>{let t=i/64*end;return[-w*kettleRadius(s,t),y+h*t]});if(curved){let p=left.at(-1);left.push(...bezier(p,[p[0]+w*.03,base-h*.04],[-bw-w*.08,base],[-bw,base],20).slice(1))}let right=left.slice().reverse().map(([x,yy])=>[-x,yy]);return{pts:[...left,...line([-bw,base],[bw,base],16),...right],opening:a,planes:[]};
 }
-function ensureKettleRules(o){if(o.photoShape||o.type!=='kettle'||o.structure.kettleVersion===725)return;let saved=random,fresh=makeContainer(o.seed,'kettle');random=saved;o.structure=fresh.structure;o.tint=fresh.tint;o.material=fresh.material;o.handle=false;o.transformation={...o.transformation,cut:'none',cutFraction:0,dent:0,drainage:false}}
+function ensureKettleRules(o){
+ if(o.photoShape||o.type!=='kettle')return;
+ // Stored kettles may carry a field from before the open-top renderer.
+ if('kettleLid' in o.structure)delete o.structure.kettleLid;
+ if(o.structure.kettleVersion===743)return;
+ if(o.structure.kettleVersion===725){
+  if(o.structure.kettleSpout==='shortStraight'&&o.structure.kettleWhistle)o.structure.kettleSpout='hooked';
+  o.structure.kettleVersion=743;
+  delete o.structure.kettleWhistle;
+  return;
+ }
+ const saved=random,fresh=makeContainer(o.seed,'kettle');random=saved;
+ o.structure=fresh.structure;o.tint=fresh.tint;o.material=fresh.material;o.handle=false;o.transformation={...o.transformation,cut:'none',cutFraction:0,dent:0,drainage:false};
+}
 function drawKettleBase(o,g){let s=o.structure;if(!s.kettleStyle)return;let r=g.w*s.bottom;
  if(s.kettlePowerBase){let ry=Math.max(3,r*.09);for(let d of [5,1]){let p=ellipse(0,g.base+d,r*1.09,ry);wash(path(p),colour?'#78867d':'#94988a',1);sketch(p,{width:.9,ink:'#68796e'})}sketch(ellipseArc(0,g.base+1,r,ry*.6,0,Math.PI),{width:.6,ink:'#c5cbbd',alpha:.8})}
 }
@@ -242,15 +261,94 @@ function drawKettleSurface(o,g){let s=o.structure,w=g.w,h=g.h,y=g.y;wash(g.p,col
  else if(o.material==='metal')sketch(bezier([-w*.4,y+h*.25],[-w*.49,y+h*.4],[-w*.43,y+h*.62],[-w*.35,y+h*.77]),{width:3,ink:'#e2e6d9',alpha:.23});
  if(s.kettleSeam)sketch(ellipseArc(0,y+h*.81,w*kettleRadius(s,.81),Math.min(6,w*.08),0,Math.PI),{width:.6,alpha:.28,ink:'#78877b'});
 }
-function drawKettleParts(o,g){let s=o.structure;if(!s.kettleStyle)return false;let w=g.w,h=g.h,y=g.y,base=g.base,n=g.opening.rx,sp=s.kettleSpout,c=colour?o.tint:'#b7b9a8',tip,p;
- if(sp==='lip'){p=[[-n*.96,y+1],[-n-w*.29,y-3],[-w*kettleRadius(s,.16)*.96,y+h*.16]]}
- else if(sp==='shortStraight'){tip=[-w*1.32*s.kettleReach,y-3];p=[[-w*kettleRadius(s,.3)*.96,y+h*.3],tip,[tip[0]-6,tip[1]+7],[-w*kettleRadius(s,.57)*.96,y+h*.57]]}
- else{let long=sp==='longCurve',upper=long?.4:.25,lower=long?.65:.46,reach=long?1.82:s.kettleElectric?1.24:1.32;tip=[-w*reach*s.kettleReach,y+(long?-8:s.kettleElectric?4:0)];p=[...bezier([-w*kettleRadius(s,upper)*.96,y+h*upper],[-w*(long?1.52:1.08),y+h*(long?.42:.22)],[-w*(long?1.44:1.14),y-h*(long?.38:.07)],tip,36),...bezier([tip[0]-2,tip[1]+(long?5:8)],[-w*(long?1.57:1.22),y-h*(long?.14:.01)],[-w*(long?1.4:1.12),y+h*(long?.72:.5)],[-w*kettleRadius(s,lower)*.96,y+h*lower],36)]}
- wash(path(p),c,1);sketch(p,{closed:true,width:1.05});if(tip){sketch(ellipse(tip[0]-1,tip[1]+2,sp==='longCurve'?3:5,1.8,16),{width:.7,ink:'#718175'});if(s.kettleWhistle){let cap=ellipse(tip[0]-3,tip[1]-4,6,3.5,20);wash(path(cap),colour?'#7b8c7f':'#929c89',1);sketch(cap,{width:.8});sketch([[tip[0]+1,tip[1]-2],[tip[0]+6,tip[1]+5]],{width:.8})}}
+// Both tube edges start inside the kettle silhouette and pass behind the body.
+function kettleSpoutGeometry(o,g){
+ const s=o.structure,{w,h,y}=g,sp=s.kettleSpout,lip=sp==='lip',long=sp==='longCurve',hook=sp==='hooked';
+ const vintage=sp==='vintageCurve',pose=kettlePose(o.seed),turn=Math.sin(pose.angle),projection=Math.cos(pose.angle);
+ const stub=!lip&&!long&&!hook&&!vintage&&['squat','broadBase','angular'].includes(s.kettleStyle);
+ const straight=stub||sp==='shortStraight'||(!hook&&s.kettleStyle==='conical');
+ const t=vintage?.67:lip?.18:stub?.39:long?.54:hook?.53:straight?.48:.47;
+ const r=w*kettleRadius(s,t),a=[-r+w*(vintage?.23:.10),y+h*t];
+ const dx=w*(vintage?.81:lip?.30:stub?.39:long?.83:hook?.66:straight?.58:.54)*s.kettleReach*(.85+.15*projection);
+ const d=[a[0]-dx,(vintage?y-h*.19:lip?y-h*.035:stub?a[1]-h*.26:hook?y+h*.075:y-h*(long?.15:straight?.025:.075))+w*.18*turn];
+ const rise=a[1]-d[1],linear=straight||lip;
+ const b=[a[0]-dx*(linear?.31:vintage?.63:hook?.38:.48),a[1]-rise*(linear?.31:vintage?-.02:hook?.17:-.025)],
+       c=[d[0]+dx*(linear?.38:vintage?.31:hook?.36:long?.34:.39),d[1]+rise*(linear?.31:vintage?.41:hook?.39:long?.54:.46)];
+ const startR=Math.min(w*(lip?.126:stub?.202:.235),h*(lip?.126:.215));
+ const endR=Math.max(2.6,Math.min(w*(lip?.11:stub?.112:long?.068:vintage?.102:hook?.088:.077),startR*.76));
+ const centres=bezier(a,b,c,d,32),top=[],bottom=[],glint=[],shade=[];
+ // Use the actual sampled body edge, including the cut-out at the shoulder.
+ const leftEdge=yy=>{
+  for(let i=1;i<g.pts.length;i++){
+   const [x0,y0]=g.pts[i-1],[x1,y1]=g.pts[i];
+   if(yy>=y0&&yy<=y1&&y1>y0)return x0+(x1-x0)*(yy-y0)/(y1-y0);
+  }
+  return -r;
+ };
+ const buried=Math.max(...Array.from({length:9},(_,i)=>leftEdge(a[1]+startR*(i/4-1))))+w*.22;
+ for(let i=0;i<centres.length;i++){
+  const u=i/(centres.length-1),p=centres[i],prev=centres[Math.max(0,i-1)],next=centres[Math.min(centres.length-1,i+1)];
+  const vx=next[0]-prev[0],vy=next[1]-prev[1],len=Math.hypot(vx,vy),nx=-vy/len,ny=vx/len;
+  const radius=endR+(startR-endR)*(1-u)**(linear?1:1.65);
+  const side=k=>{
+   // The hooked version has a scooped lower edge and a small flare at the mouth.
+   const scoop=hook&&k<0?Math.min(radius*.72,w*.092*Math.sin(Math.PI*u)**2*Math.exp(-((u-.66)**2)/.085)):0;
+   const offset=radius*k+scoop*-k;
+   let x=p[0]+nx*offset,yy=p[1]+ny*offset;
+   if(u<.25){
+    const v=u/.25,blend=v*(2-v);
+    x=buried+(vintage?w*.10:0)+(x-buried-(vintage?w*.10:0))*blend;
+   }
+   return[x,yy];
+  };
+  top.push(side(1));bottom.push(side(-1));glint.push(side(.57));shade.push(side(-.73));
+ }
+ const vx=d[0]-c[0],vy=d[1]-c[1],len=Math.hypot(vx,vy),tx=vx/len,ty=vy/len;
+ const rim=(r1,r2)=>Array.from({length:25},(_,i)=>{
+  const a=i/24*Math.PI*2,q=Math.cos(a)*r1,j=Math.sin(a)*r2;
+  return[d[0]-ty*q+tx*j,d[1]+tx*q+ty*j];
+ });
+ return{shell:[...top,...bottom.slice().reverse()],top,bottom,glint,shade,rim:rim(endR+.32,Math.max(1.15,endR*.31)),mouth:rim(Math.max(1.4,endR-.9),Math.max(.62,endR*.22))};
+}
+function drawKettleSpout(o,g,hit=false){
+ if(!o.structure.kettleStyle)return;
+ const q=kettleSpoutGeometry(o,g),shell=path(q.shell),rim=path(q.rim);
+ if(hit){ctx.fillStyle='#000';ctx.fill(shell);ctx.fill(rim);return}
+ // Use a separate seed so the revised strokes do not change existing kettle decoration.
+ const saved=random;random=rng(o.seed^0x4a713);
+ ctx.save();
+ // The body wash is translucent, so hide the buried tube before painting it.
+ const vintage=o.structure.kettleStyle==='vintage';
+ if(!vintage){
+  const outside=path(g.pts);
+  outside.rect(-g.w*4,g.y-g.h,g.w*8,g.h*3);
+  ctx.clip(outside,'evenodd');
+ }
+ wash(shell,colour?o.tint:'#b7b9a8');
+ ctx.save();ctx.clip(shell);
+ wash(path([...q.shade,...q.bottom.slice().reverse()]),'#4e5b55',.21);
+ sketch(q.glint,{width:1.1,ink:'#f0ede0',alpha:.46});
+ ctx.restore();
+ if(vintage)sketch([q.bottom[0],q.top[0]],{width:.98,alpha:.92});
+ sketch(q.top,{width:.98,alpha:.92});sketch(q.bottom,{width:.98,alpha:.92});
+ wash(rim,colour?'#bfc5b7':'#bfc1b0');
+ wash(path(q.mouth),'#3d413a',.98);
+ sketch(q.rim,{closed:true,width:.64,ink:'#454940',alpha:.91});
+ sketch(q.rim.slice(12,21),{width:.43,ink:'#f3f0df',alpha:.78});
+ ctx.restore();random=saved;
+}
+function drawKettleParts(o,g){let s=o.structure;if(!s.kettleStyle)return false;let w=g.w,h=g.h,y=g.y;
  if(s.kettleGrip==='side'){let top=.14,bottom=.8,rx=w*kettleRadius(s,top)*.97,bx=w*kettleRadius(s,bottom)*.97,yy=y+h*top,by=y+h*bottom,outer=bezier([rx,yy],[w*1.8,yy-5],[w*1.8,by+5],[bx,by],32),inner=bezier([bx,by-7],[w*1.38,by],[w*1.4,yy+9],[rx,yy+7],32),p=[...outer,...inner];wash(path(p),colour?'#76867c':'#929a86',1);sketch(p,{closed:true,width:1.05})}
- else{let t=.22,r=w*kettleRadius(s,t)*.98,yy=y+h*t,angular=s.kettleGrip==='angular',rise=Math.min(w*s.kettleRise*(s.kettleGrip==='high'?1.18:1),Math.max(20,angular?130-h/2:(134-h*.45)/.75));
-  let handle=angular?[[-r,yy],[-r*.91,y-rise+7],[-r*.65,y-rise],[r*.65,y-rise],[r*.91,y-rise+7],[r,yy]]:bezier([-r,yy],[-r-w*.14,y-rise],[r+w*.14,y-rise],[r,yy],48);
-  sketch(handle,{width:4,ink:colour?'#acb3a6':'#b3b7a3',alpha:1});sketch(handle,{width:.85,ink:'#6c7b6f'});let grip=angular?handle.slice(2,4):handle.slice(17,32);sketch(grip,{width:5,ink:colour?'#6f7c70':'#8b9580',alpha:1});for(let side of [-1,1]){let pin=ellipse(side*r,yy,2.7,3,16);wash(path(pin),colour?'#839282':'#a0a691',1);sketch(pin,{width:.6})}
+ else{
+  const vintage=s.kettleStyle==='vintage',pose=kettlePose(o.seed),turn=Math.sin(pose.angle),angular=s.kettleGrip==='angular';
+  const tl=(vintage?.10:.22)+turn*.09,tr=(vintage?.10:.22)-turn*.09;
+  const left=[-w*kettleRadius(s,tl)*.98,y+h*tl],right=[w*kettleRadius(s,tr)*.98,y+h*tr];
+  const r=(right[0]-left[0])/2,shift=w*.1*turn;
+  const rise=Math.min(w*s.kettleRise*(vintage?.79:s.kettleGrip==='high'?1.18:1),Math.max(20,angular?130-h/2:(134-h*.45)/.75));
+  const handle=angular?[left,[-r*.91+shift,y-rise+7],[-r*.65+shift,y-rise],[r*.65+shift,y-rise],[r*.91+shift,y-rise+7],right]:bezier(left,[left[0]-w*.14+shift,y-rise],[right[0]+w*.14+shift,y-rise],right,48);
+  sketch(handle,{width:vintage?3:4,ink:colour?'#acb3a6':'#b3b7a3',alpha:1});sketch(handle,{width:.85,ink:'#6c7b6f'});
+  const grip=angular?handle.slice(2,4):handle.slice(17,32);sketch(grip,{width:vintage?3.8:5,ink:colour?'#6f7c70':'#8b9580',alpha:1});
+  for(const [x,yy] of [left,right]){const pin=ellipse(x,yy,2.7,3,16);wash(path(pin),colour?'#839282':'#a0a691',1);sketch(pin,{width:.6})}
  }
  return true;
 }
@@ -404,7 +502,8 @@ function drawTank(o,g){if(!o.tank)return;let t=o.structure.toilet||{tankWidth:.7
 function drawTransformation(o,g,hit=false){let t=o.transformation;if(t.cut==='side'){let p=path(ellipse(-g.w*.1,g.y+g.h*.57,g.w*.6,g.h*.14));ctx.save();ctx.clip(g.p);ctx.globalCompositeOperation='destination-out';wash(p,'#000');ctx.restore();sketch(ellipse(-g.w*.1,g.y+g.h*.57,g.w*.6,g.h*.14),{width:1})}
  if(t.damage&&g.opening.rect){let A=g.opening.rect[0],d=t.damage,points=[[A[0]-1,A[1]-5],[A[0]+d*1.5,A[1]-3],[A[0]+d*.8,A[1]+d*.5],[A[0]+d*.4,A[1]+d],[A[0]-2,A[1]+d*.7]];ctx.save();ctx.globalCompositeOperation='destination-out';wash(path(points),'#000');ctx.restore();sketch(points.slice(1,4),{width:1,alpha:.65})}
 }
-function drawContainer(o,x,y,size=1){if(o.photoShape){drawPhotoContainer(o,x,y,size);return}random=rng(o.seed^0x87a6);ctx.save();ctx.translate(x,y);ctx.scale(size*o.scale*Math.cos(o.view.yaw*Math.PI/180)*.96,size*o.scale);ctx.rotate(o.view.roll*Math.PI/180);let g=geometry(o);drawShadow(o,g);drawTank(o,g);drawCeramicBase(o,g);drawClayBase(o,g);drawKettleBase(o,g);drawBody(o,g);drawBands(o,g);drawCategoryDetails(o,g);drawHatching(o,g);drawMaterial(o,g);if(o.material==='wood')drawWood(o,g);drawWear(o,g);drawOpening(o,g);drawHandle(o,g);drawCookwareParts(o,g);drawTransformation(o,g);ctx.restore()}
+function applyKettleFacing(o){if(!o.photoShape&&o.structure.kettleStyle)ctx.scale(kettlePose(o.seed).side,1)}
+function drawContainer(o,x,y,size=1){if(o.photoShape){drawPhotoContainer(o,x,y,size);return}random=rng(o.seed^0x87a6);ctx.save();ctx.translate(x,y);ctx.scale(size*o.scale*Math.cos(o.view.yaw*Math.PI/180)*.96,size*o.scale);ctx.rotate(o.view.roll*Math.PI/180);let g=geometry(o);applyKettleFacing(o);drawShadow(o,g);drawTank(o,g);drawCeramicBase(o,g);drawClayBase(o,g);drawKettleBase(o,g);if(o.structure.kettleStyle!=='vintage')drawKettleSpout(o,g);drawBody(o,g);drawBands(o,g);drawCategoryDetails(o,g);drawHatching(o,g);drawMaterial(o,g);if(o.material==='wood')drawWood(o,g);drawWear(o,g);if(o.structure.kettleStyle==='vintage')drawKettleSpout(o,g);drawOpening(o,g);drawHandle(o,g);drawCookwareParts(o,g);drawTransformation(o,g);ctx.restore()}
 // Plant plans are seeded once. Animation reveals their paths and leaf sizes.
 const PLANTS={succulent:'Succulents',vine:'Loofah vine',citrus:'Orange tree',flowers:'Flowers',basil:'Basil',mint:'Mint',rosemary:'Rosemary',onion:'Spring onion',coriander:'Coriander',kalanchoe:'Kalanchoe',lavender:'Lavender',thyme:'Thyme',echeveria:'Echeveria',jade:'Crassula ovata',haworthia:'Haworthia',agave:'Agave',cabbage:'Chinese cabbage',carrot:'Carrot',celery:'Celery',chineseCelery:'Chinese celery',pea:'Pea shoots',kale:'Kale',lettuce:'Lettuce',spinach:'Spinach',parsley:'Parsley',chilli:'Chilli',tomato:'Tomato',aloe:'Aloe vera',cactus:'Cactus'};
 for(const [k,v] of Object.entries(PLANTS))ui.plant.add(new Option(v,k));
@@ -441,7 +540,7 @@ const COLS=5,ROWS=3,CELL_W=400,CELL_H=287,TOP=145;
 function updateSelection(){ui.specimen.replaceChildren();items.forEach((o,i)=>ui.specimen.add(new Option(String(i+1).padStart(2,'0')+' · '+TYPES[o.type],String(i))));ui.specimen.value=String(selectedIndex);let o=items[selectedIndex];document.getElementById('selectionInfo').textContent=o?(o.customName||'Specimen')+' / '+o.material:''}
 function resetPositions(){layerOrder=items.map((_,i)=>i);positions=items.map((o,i)=>{let layer=makeLayer(o,400,365,200,186,1.25,true),pixels=layer.getContext('2d').getImageData(0,0,400,365).data,left=400,right=0,top=365,bottom=0;for(let y=0;y<365;y++)for(let x=0;x<400;x++)if(pixels[(y*400+x)*4+3]>100){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y)}return{x:CELL_W*(.5+i%COLS)+200-(left+right)/2,y:TOP+CELL_H*(.5+Math.floor(i/COLS))+182.5-(top+bottom)/2}})}
 // Dedicated surface masks exclude cast shadows and background paper.
-function drawHitSurface(o,x,y,size){random=rng(o.seed^0x87a6);ctx.save();ctx.translate(x,y);ctx.scale(size*o.scale*Math.cos(o.view.yaw*Math.PI/180)*.96,size*o.scale);ctx.rotate(o.view.roll*Math.PI/180);let g=geometry(o);if(o.photoShape){ctx.clip(path(g.pts));ctx.fillStyle='#000';ctx.fill(g.p,'evenodd');ctx.restore();return}drawCeramicBase(o,g);drawClayBase(o,g);drawKettleBase(o,g);ctx.fillStyle='#000';ctx.fill(g.p);if(o.tank)drawTank(o,g);let a=g.opening;ctx.fill(a.rect?path(a.rect):path(o.family==='tyre'?ellipse(0,g.y,g.w*.94,a.ry/.57):openingPoints(a)));drawHandle(o,g);drawCookwareParts(o,g);drawTransformation(o,g,true);ctx.restore()}
+function drawHitSurface(o,x,y,size){random=rng(o.seed^0x87a6);ctx.save();ctx.translate(x,y);ctx.scale(size*o.scale*Math.cos(o.view.yaw*Math.PI/180)*.96,size*o.scale);ctx.rotate(o.view.roll*Math.PI/180);let g=geometry(o);applyKettleFacing(o);if(o.photoShape){ctx.clip(path(g.pts));ctx.fillStyle='#000';ctx.fill(g.p,'evenodd');ctx.restore();return}drawCeramicBase(o,g);drawClayBase(o,g);drawKettleBase(o,g);drawKettleSpout(o,g,true);ctx.fillStyle='#000';ctx.fill(g.p);if(o.tank)drawTank(o,g);let a=g.opening;ctx.fill(a.rect?path(a.rect):path(o.family==='tyre'?ellipse(0,g.y,g.w*.94,a.ry/.57):openingPoints(a)));drawHandle(o,g);drawCookwareParts(o,g);drawTransformation(o,g,true);ctx.restore()}
 function makeLayer(o,w,h,x,y,scale,hit=false){let mainCtx=ctx,layer=document.createElement('canvas');layer.width=w;layer.height=h;ctx=layer.getContext('2d');if(hit)drawHitSurface(o,x,y,scale);else{drawContainer(o,x,y,scale);let mask=document.createElement('canvas');mask.width=w;mask.height=h;ctx=mask.getContext('2d');drawHitSurface(o,x,y,scale);ctx.globalCompositeOperation='source-in';ctx.fillStyle='#f4efde';ctx.fillRect(0,0,w,h);ctx=layer.getContext('2d');ctx.globalCompositeOperation='destination-over';ctx.drawImage(mask,0,0);ctx.globalCompositeOperation='source-over'}ctx=mainCtx;return layer}
 function render(){colour=ui.colour.checked;paper=ui.paper.checked;let single=viewMode==='single',targetW=2000,targetH=1133;if(canvas.width!==targetW||canvas.height!==targetH){canvas.width=targetW;canvas.height=targetH}document.querySelector('main').classList.toggle('single',single);document.getElementById('singleControls').hidden=!single;document.getElementById('resetLayout').hidden=single;document.getElementById('new').hidden=false;document.getElementById('plateView').setAttribute('aria-pressed',String(!single));document.getElementById('singleView').setAttribute('aria-pressed',String(single));
 if(single){singleLayer=makeLayer(items[selectedIndex],2000,1150,1000,715,2.35);singleHitLayer=makeLayer(items[selectedIndex],2000,1150,1000,715,2.35,true)}else{objectLayers=items.map(o=>makeLayer(o,400,365,200,186,1.25));objectHitLayers=items.map(o=>makeLayer(o,400,365,200,186,1.25,true))}paperLayer=null;compose();updateSelection();updateCursor(lastHover)}
@@ -460,7 +559,7 @@ function layerHit(layer,x,y){x=Math.floor(x);y=Math.floor(y);return x>=0&&y>=0&&
 function hitSpecimen(p){for(let n=layerOrder.length-1;n>=0;n--){let i=layerOrder[n];if(layerHit(objectHitLayers[i],p.x-positions[i].x+200,p.y-positions[i].y+182.5))return i;}return -1}
 function updateCursor(e){if(viewMode==='single'){canvas.style.cursor='default';return}if(drag&&viewMode==='plate'){canvas.style.cursor='grabbing';return}if(!e){canvas.style.cursor='default';return}let p=canvasPoint(e),hit=viewMode==='single'?layerHit(singleHitLayer,p.x,p.y):hitSpecimen(p)>=0;canvas.style.cursor=hit?(viewMode==='single'?'pointer':'grab'):'default'}
 canvas.onpointerleave=()=>{lastHover=null;if(!drag)updateCursor(null)};
-canvas.onpointerdown=e=>{if(e.button!==0||viewMode==='single')return;let p=canvasPoint(e),index=viewMode==='single'?(layerHit(singleHitLayer,p.x,p.y)?selectedIndex:-1):hitSpecimen(p);if(index<0)return;selectedIndex=index;updateSelection();drag={id:e.pointerId,index,origin:{...positions[index]},startX:e.clientX,startY:e.clientY,moved:false,offsetX:viewMode==='plate'?p.x-positions[index].x:0,offsetY:viewMode==='plate'?p.y-positions[index].y:0};canvas.setPointerCapture(e.pointerId);lastHover={clientX:e.clientX,clientY:e.clientY};updateCursor(lastHover);if(viewMode==='plate'){layerOrder=layerOrder.filter(i=>i!==index);layerOrder.push(index);canvas.classList.add('dragging');compose()}e.preventDefault()};
+canvas.onpointerdown=e=>{if(e.button!==0||viewMode==='single')return;let p=canvasPoint(e),index=hitSpecimen(p);if(index<0)return;selectedIndex=index;updateSelection();drag={id:e.pointerId,index,origin:{...positions[index]},startX:e.clientX,startY:e.clientY,moved:false,offsetX:viewMode==='plate'?p.x-positions[index].x:0,offsetY:viewMode==='plate'?p.y-positions[index].y:0};canvas.setPointerCapture(e.pointerId);lastHover={clientX:e.clientX,clientY:e.clientY};updateCursor(lastHover);if(viewMode==='plate'){layerOrder=layerOrder.filter(i=>i!==index);layerOrder.push(index);canvas.classList.add('dragging');compose()}e.preventDefault()};
 canvas.onpointermove=e=>{lastHover={clientX:e.clientX,clientY:e.clientY};if(!drag||drag.id!==e.pointerId){updateCursor(lastHover);return}let p=canvasPoint(e);if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>3)drag.moved=true;if(viewMode==='plate'&&drag.moved){positions[drag.index]={x:Math.max(0,Math.min(canvas.width,p.x-drag.offsetX)),y:Math.max(0,Math.min(canvas.height,p.y-drag.offsetY))};compose()}e.preventDefault()};
 function finishPointer(e,cancel=false){if(!drag||drag.id!==e.pointerId)return;drag=null;canvas.classList.remove('dragging');if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);updateCursor(lastHover)}
 canvas.onpointerup=e=>finishPointer(e);canvas.onpointercancel=e=>finishPointer(e,true);canvas.onlostpointercapture=()=>{drag=null;canvas.classList.remove('dragging');updateCursor(lastHover)};
@@ -472,8 +571,34 @@ function drawWood(o,g){ctx.save();ctx.clip(g.p);for(let i=0;i<12;i++){let x=-g.w
 
 // Garden interactions: collections, seed selection and per-container planting.
 let seedSelection=new Set(['mixed']),homeSeedSelection=new Set(['mixed']),libraryContainers=[],historyContainers=[],activeVariant=null,hasInteracted=false;
-try{historyContainers=JSON.parse(localStorage.getItem('habitland-history-v1')||'[]').filter(o=>o&&RULES[o.type]&&o.structure)}catch(e){}
-try{libraryContainers=JSON.parse(localStorage.getItem('habitland-collected-v2')||'[]').filter(o=>o&&RULES[o.type]&&o.structure)}catch(e){}
+// Validate stored photo geometry before it reaches Canvas or colour sampling.
+function cleanPhotoShape(shape){
+ const point=p=>Array.isArray(p)&&p.length===2&&p.every(v=>Number.isFinite(v)&&Math.abs(v)<=100000);
+ const polygon=(p,max)=>Array.isArray(p)&&p.length>=3&&p.length<=max&&p.every(point);
+ const m=shape?.mouth;
+ if(!shape||!polygon(shape.points,128)||!Number.isFinite(shape.height)||shape.height<=0||shape.height>100000||
+  !m||!['x','y','rx','ry'].every(k=>Number.isFinite(m[k])&&Math.abs(m[k])<=100000)||m.rx<=0||m.ry<=0)return null;
+ const regions=(Array.isArray(shape.regions)?shape.regions:[]).slice(0,10).filter(r=>polygon(r?.points,48)&&/^#[0-9a-f]{6}$/i.test(r.color)).map(r=>({
+  points:r.points,color:r.color,pattern:r.pattern==='woven'&&Number.isFinite(r.patternConfidence)&&r.patternConfidence>=.85?'woven':'none',
+  patternConfidence:Number.isFinite(r.patternConfidence)?clamp(r.patternConfidence):0,
+  weaveDensity:Number.isFinite(r.weaveDensity)?clamp(r.weaveDensity):.4,
+  weaveAngle:Number.isFinite(r.weaveAngle)?Math.max(-90,Math.min(90,r.weaveAngle)):0
+ }));
+ return {points:shape.points,height:shape.height,mouth:{x:m.x,y:m.y,rx:m.rx,ry:m.ry,visible:m.visible!==false},
+  holes:(Array.isArray(shape.holes)?shape.holes:[]).slice(0,8).filter(p=>polygon(p,48)),regions};
+}
+function readContainerStore(key,history=false){
+ try{
+  const data=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(data))return [];
+  return (history?data.slice(-12):data).filter(o=>{
+   if(!o||!RULES[o.type]||!o.structure||!o.view||!o.condition||!o.transformation||!Number.isFinite(o.seed)||!Number.isFinite(o.scale)||o.scale<=0)return false;
+   if(o.photoShape){const shape=cleanPhotoShape(o.photoShape);if(!shape)return false;o.photoShape=shape;delete o.photoMarks}
+   return true;
+  });
+ }catch(e){return []}
+}
+historyContainers=readContainerStore('habitland-history-v1',true);
+libraryContainers=readContainerStore('habitland-collected-v2');
 const seedNames={mixed:'Random',vine:'Loofa',basil:'Basil',onion:'Spring Onion',mint:'Mint',succulent:'Succulent',rosemary:'Rosemary',cabbage:'Pak Choi',lettuce:'Lettuce',celery:'Celery',pea:'Pea Shoots',kale:'Kale',spinach:'Spinach',coriander:'Coriander',tomato:'Tomato',chilli:'Chilli',aloe:'Aloe',parsley:'Parsley',chives:'Chives',carrot:'Carrot',kalanchoe:'Kalanchoe'};
 PLANTS.chives='Chives';
 function lineIcon(k){let leaf='<path d="M32 53C4 40 12 11 32 5C52 15 60 36 32 53Z M32 54V7 M32 21L20 15 M32 31L45 23 M32 41L18 31"/>';let drawing=leaf;
@@ -514,16 +639,23 @@ finishPointer=function(e,cancel=false){if(!drag||drag.id!==e.pointerId)return;le
 updateCursor=function(e){if(viewMode==='single'){let p=e?canvasPoint(e):null;canvas.style.cursor=p&&layerHit(singleHitLayer,p.x,p.y)?'pointer':'default';return}if(drag){canvas.style.cursor='grabbing';return}let p=e?canvasPoint(e):null;canvas.style.cursor=p&&hitSpecimen(p)>=0?'grab':'default'};
 function addToGarden(o,p){interact();let clone=JSON.parse(JSON.stringify(o));if(o.collectionId||o.historyId){clone.scale*=containerThumbnail(o).gardenScaleRatio}items.push(clone);positions.push(p||{x:200+400*((items.length-1)%5),y:310+300*(Math.floor((items.length-1)/5)%3)});layerOrder.push(items.length-1);selectedIndex=items.length-1;setView('plate');notice('Container added to my garden.')}
 const thumbnailCache=new Map();
+const THUMBNAIL_CACHE_BYTES=24*1024*1024;let thumbnailCacheBytes=0;
 function copyThumbnail(source){let c=document.createElement('canvas');c.width=source.width;c.height=source.height;c.getContext('2d').drawImage(source,0,0);c.gardenScaleRatio=source.gardenScaleRatio;return c}
 function containerThumbnail(o){
- let ratio=Math.max(4,Math.min(6,Math.ceil((window.devicePixelRatio||1)*(document.documentElement.clientWidth/1512)))),pixels=120*ratio,key=JSON.stringify([ratio,o.seed,o.type,o.tint,o.scale,o.structure,o.condition,o.view,o.transformation,o.material,o.photoShape,o.photoMarks,o.widthFactor,o.heightFactor]);
- if(thumbnailCache.has(key))return copyThumbnail(thumbnailCache.get(key));
+ let ratio=Math.max(4,Math.min(6,Math.ceil((window.devicePixelRatio||1)*(document.documentElement.clientWidth/1512)))),pixels=120*ratio,key=JSON.stringify([ratio,o.seed,o.type,o.tint,o.scale,o.structure,o.condition,o.view,o.transformation,o.material,o.photoShape,o.widthFactor,o.heightFactor]);
+ if(thumbnailCache.has(key)){const cached=thumbnailCache.get(key);thumbnailCache.delete(key);thumbnailCache.set(key,cached);return copyThumbnail(cached);}
  let layer=makeLayer(o,512,512,256,270,1.2),a=layer.getContext('2d').getImageData(0,0,512,512).data,l=512,r=0,t=512,b=0;
  for(let y=0;y<512;y++)for(let x=0;x<512;x++)if(a[(y*512+x)*4+3]>15){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}
  let w=Math.max(1,r-l+1),h=Math.max(1,b-t+1),fit=Math.min((112*ratio)/w,(112*ratio)/h),x=(pixels-w*fit)/2+(256-l)*fit,y=(pixels-h*fit)/2+(270-t)*fit;
  // Draw vectors again at full resolution, rather than enlarging a low-resolution bitmap.
  let thumb=makeLayer(o,pixels,pixels,x,y,1.2*fit);thumb.gardenScaleRatio=1.2*fit/ratio/(1.25*(1320/2000));
- thumbnailCache.set(key,thumb);if(thumbnailCache.size>96)thumbnailCache.delete(thumbnailCache.keys().next().value);return copyThumbnail(thumb);
+ thumbnailCache.set(key,thumb);thumbnailCacheBytes+=thumb.width*thumb.height*4;
+ while(thumbnailCacheBytes>THUMBNAIL_CACHE_BYTES||thumbnailCache.size>32){
+  const oldest=thumbnailCache.keys().next().value,expired=thumbnailCache.get(oldest);
+  thumbnailCacheBytes-=expired.width*expired.height*4;thumbnailCache.delete(oldest);
+  expired.width=expired.height=0;
+ }
+ return copyThumbnail(thumb);
 }
 function collectionThumbnail(source){return source}
 let showTypes,showVariants;
@@ -561,16 +693,29 @@ function drawObservedWeave(o,points,region){
  if(region.pattern!=='woven'||!(region.patternConfidence>=.85))return;
  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
  const extent=Math.hypot(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))/2+3;
- const step=Math.max(4.5,8-(region.weaveDensity??.4)*3.5,extent/24);
+ // Keep each strand readable in the small collection and garden previews.
+ const density=Math.max(0,Math.min(1,Number.isFinite(region.weaveDensity)?region.weaveDensity:.4));
+ const count=Math.max(1,Math.min(10,(o.photoShape?.regions||[region]).filter(r=>r.pattern==='woven'&&r.patternConfidence>=.85).length));
+ const side=Math.max(5,Math.floor(Math.sqrt(1400/count))-1);
+ const step=Math.max(6.2,8.6-density*2.2,2*extent/side);
  const col=photoSurfaceColour(region.color,o),rgb=[1,3,5].map(i=>parseInt(col.slice(i,i+2),16));
- const tone=delta=>colour?'#'+rgb.map(v=>Math.max(0,Math.min(255,v+delta)).toString(16).padStart(2,'0')).join(''):'#878174';
+ const tone=delta=>colour?'#'+rgb.map(v=>Math.max(0,Math.min(255,v+delta)).toString(16).padStart(2,'0')).join(''):delta<0?'#746f63':'#c8c2b0';
+ const saved=random;random=rng(o.seed^0x746ce);
  ctx.save();ctx.clip(path(points));ctx.translate(cx,cy);ctx.rotate((region.weaveAngle||0)*Math.PI/180);
- // Short, staggered strand segments suggest interlacing without stamping a checkerboard.
- for(let row=0,y=-extent;y<=extent;y+=step,row++)for(let x=-extent;x<=extent;x+=step){
-  const offset=(row%2)*step*.5,xx=x+offset;
-  sketch([[xx-step*.45,y],[xx,y+.5],[xx+step*.45,y]],{width:.7,alpha:.28,ink:tone(-34),passes:1});
-  if(row%2===Math.round(x/step)%2)sketch([[xx,y-step*.42],[xx+.35,y+step*.42]],{width:.7,alpha:.3,ink:tone(30),passes:1});
+ // Alternating over/under strands, with a narrow shadow and a lit upper edge.
+ for(let row=0,y=-extent;y<=extent;y+=step,row++)for(let column=0,x=-extent;x<=extent;x+=step,column++){
+  const xx=x+(row%2)*step*.5,half=step*.43,warp=step*.40;
+  const horizontal=[[xx-half,y],[xx,y+.3],[xx+half,y]];
+  const vertical=[[xx,y-warp],[xx+.25,y],[xx,y+warp]];
+  const strand=(line,across)=>{
+   sketch(line.map(([x,y])=>[x+(across?0:.6),y+(across?.65:0)]),{width:1.65,alpha:.58,ink:tone(-49),passes:1});
+   sketch(line,{width:1.1,alpha:.72,ink:tone(18),passes:1});
+   sketch(line.map(([x,y])=>[x-(across?0:.25),y-(across?.27:0)]),{width:.48,alpha:.65,ink:tone(43),passes:1});
+  };
+  if((row+column)%2){strand(horizontal,true);strand(vertical,false)}
+  else{strand(vertical,false);strand(horizontal,true)}
  }
+ random=saved;
  ctx.restore();
 }
 function drawPhotoContainer(o,x,y,size){
@@ -592,15 +737,18 @@ function drawPhotoContainer(o,x,y,size){
 }
 
 function saveHistory(){try{localStorage.setItem('habitland-history-v1',JSON.stringify(historyContainers))}catch(e){notice('History is available for this session only.')}}
-function saveCollection(){try{localStorage.setItem('habitland-collected-v2',JSON.stringify(libraryContainers))}catch(e){notice('Browser storage is unavailable.')}}
+function saveCollection(){
+ try{localStorage.setItem('habitland-collected-v2',JSON.stringify(libraryContainers));return true}
+ catch(e){notice('The collection could not be saved. Browser storage may be full. Remove an unused container and try again.');return false}
+}
 let photoJob=0,photoRequestController=null;
 function setGeneratedActionBusy(busy){
  const action=$('generatedPlaceholder');action.disabled=busy||!photoPixels;action.textContent=busy?'Generating…':'Generate';
  $('generatedSlot').setAttribute('aria-busy',String(busy));
 }
-function invalidatePhotoJob(){photoJob++;photoRequestController?.abort();photoRequestController=null;$('recogniseAgain').disabled=true;$('photoModelInfo').textContent='';$('photoModelInfo').title='';photoBitmap?.close?.();photoBitmap=null;photoUrl=null;photoPixels=null;setGeneratedActionBusy(false);}
-let editingCollectionId=null,photoBitmap=null,photoPixels=null,photoUrl=null,photoResult=null;
-function openUploader(){invalidatePhotoJob();$('customUpload').value='';editingCollectionId=null;photoBitmap=null;photoPixels=null;photoResult=null;customDraft=null;$('customPanel').classList.remove('editing');$('customTitle').textContent='Upload My Container';$('addCustom').textContent='Add to my collection';$('addCustom').disabled=true;$('generatePhoto').disabled=true;$('customPhoto').hidden=true;$('customPreview').hidden=true;$('photoPlaceholder').hidden=false;$('generatedPlaceholder').hidden=false;$('customStatus').textContent='';for(let k of ['customHeight','customWidth'])$(k).value='1';$('customRim').value='4';syncPhotoSliders();$('customPanel').showModal()}
+function invalidatePhotoJob(){photoJob++;photoRequestController?.abort();photoRequestController=null;$('recogniseAgain').disabled=true;$('photoModelInfo').textContent='';$('photoModelInfo').title='';photoUrl=null;photoPixels=null;setGeneratedActionBusy(false);}
+let editingCollectionId=null,photoPixels=null,photoUrl=null,photoResult=null;
+function openUploader(){invalidatePhotoJob();$('customUpload').value='';editingCollectionId=null;photoPixels=null;photoResult=null;customDraft=null;$('customPanel').classList.remove('editing');$('customTitle').textContent='Upload My Container';$('addCustom').textContent='Add to my collection';$('addCustom').disabled=true;$('generatePhoto').disabled=true;$('customPhoto').hidden=true;$('customPreview').hidden=true;$('photoPlaceholder').hidden=false;$('generatedPlaceholder').hidden=false;$('customStatus').textContent='';for(let k of ['customHeight','customWidth'])$(k).value='1';$('customRim').value='4';syncPhotoSliders();$('customPanel').showModal()}
 function openEditor(id){invalidatePhotoJob();$('generatePhoto').disabled=true;let o=libraryContainers.find(x=>x.collectionId===id);if(!o)return;editingCollectionId=id;customDraft=JSON.parse(JSON.stringify(o));photoResult=JSON.parse(JSON.stringify(customDraft));if(!photoResult.photoShape){photoResult.structure.w/=(photoResult.widthFactor||1);photoResult.structure.h/=(photoResult.heightFactor||1)}$('customPanel').classList.add('editing');$('customTitle').textContent='Change My Container';$('addCustom').textContent='Save Change';$('addCustom').disabled=false;$('customStatus').textContent='';showPhotoModel(o.photoAnalysis||{},'saved container');$('customColour').value=/^#[0-9a-f]{6}$/i.test(o.tint)?o.tint:'#b79052';$('customHeight').value=o.heightFactor||1;$('customWidth').value=o.widthFactor||1;$('customRim').value=o.structure.rim||4;$('customPanel').showModal();updateCustomPreview()}
 function syncPhotoSliders(){for(let id of ['customHeight','customWidth','customRim']){let el=$(id),min=Number(el.min|| (id==='customRim'?1:.55)),max=Number(el.max||(id==='customRim'?9:1.45));el.style.setProperty('--range-fill',((Number(el.value)-min)/(max-min)*100)+'%')}}
 function updateCustomPreview(){syncPhotoSliders();if(!photoResult)return;customDraft=JSON.parse(JSON.stringify(photoResult));customDraft.tint=$('customColour').value;customDraft.heightFactor=Number($('customHeight').value);customDraft.widthFactor=Number($('customWidth').value);customDraft.structure.rim=Number($('customRim').value);if(!customDraft.photoShape){customDraft.structure.w=photoResult.structure.w*customDraft.widthFactor;customDraft.structure.h=photoResult.structure.h*customDraft.heightFactor}let c=$('customPreview'),old=ctx;ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);let saved=random;random=rng(customDraft.seed^0x87a6);let g=geometry(customDraft);random=saved;let reference=JSON.parse(JSON.stringify(photoResult));reference.widthFactor=reference.heightFactor=1;let rs=random;random=rng(reference.seed^0x87a6);let baseline=geometry(reference);random=rs;let size=Math.min(265/(baseline.w*2*1.45),235/(Math.max(50,baseline.base-baseline.y)*1.45));drawContainer(customDraft,c.width/2,c.height/2-(g.base+g.y)/2*size,size);ctx=old;c.hidden=false;$('generatedPlaceholder').hidden=true}
@@ -609,7 +757,35 @@ $('generatedPlaceholder').onclick=()=>{
  if(!photoPixels||$('generatedPlaceholder').disabled||$('generatePhoto').disabled)return;
  return recognisePhoto(false);
 };
-$('customUpload').onchange=async e=>{let f=e.target.files[0];if(!f)return;invalidatePhotoJob();const job=photoJob;setGeneratedActionBusy(true);$('generatePhoto').disabled=true;$('addCustom').disabled=true;try{let decoded=await createImageBitmap(f);if(job!==photoJob){decoded.close?.();return}photoBitmap?.close?.();photoBitmap=decoded;let c=document.createElement('canvas'),ratio=Math.min(1,1024/Math.max(photoBitmap.width,photoBitmap.height));c.width=Math.round(photoBitmap.width*ratio);c.height=Math.round(photoBitmap.height*ratio);c.getContext('2d').drawImage(photoBitmap,0,0,c.width,c.height);photoPixels=c;photoUrl=c.toDataURL('image/jpeg',.9);$('customPhoto').src=photoUrl;$('customPhoto').hidden=false;$('photoPlaceholder').hidden=true;$('customPreview').hidden=true;$('generatedPlaceholder').hidden=false;customDraft=null;photoResult=null;$('addCustom').disabled=true;$('generatePhoto').disabled=false;$('recogniseAgain').disabled=false;$('customStatus').textContent='Photo loaded. Generate will extract the visible container outline.';setGeneratedActionBusy(false)}catch(e){if(job===photoJob){setGeneratedActionBusy(false);$('customStatus').textContent='This image could not be decoded. Please use JPEG or PNG.'}}};
+$('customUpload').onchange=async e=>{
+ const file=e.target.files[0];if(!file)return;
+ invalidatePhotoJob();
+ const job=photoJob;
+ photoResult=null;customDraft=null;
+ $('customPhoto').removeAttribute('src');$('customPhoto').hidden=true;
+ $('photoPlaceholder').hidden=false;$('customPreview').hidden=true;$('generatedPlaceholder').hidden=false;
+ $('generatePhoto').disabled=true;$('addCustom').disabled=true;
+ $('customStatus').textContent='Loading photo…';setGeneratedActionBusy(true);
+ try{
+  const decoded=await createImageBitmap(file);
+  try{
+   if(job!==photoJob)return;
+   const c=document.createElement('canvas'),ratio=Math.min(1,1024/Math.max(decoded.width,decoded.height));
+   c.width=Math.max(1,Math.round(decoded.width*ratio));c.height=Math.max(1,Math.round(decoded.height*ratio));
+   c.getContext('2d').drawImage(decoded,0,0,c.width,c.height);
+   const url=c.toDataURL('image/jpeg',.9);
+   photoPixels=c;photoUrl=url;
+   $('customPhoto').src=url;$('customPhoto').hidden=false;$('photoPlaceholder').hidden=true;
+   $('generatePhoto').disabled=false;$('recogniseAgain').disabled=false;
+   $('customStatus').textContent='Photo loaded. Generate will extract the visible container outline.';
+  }finally{decoded.close?.()}
+ }catch(e){
+  if(job===photoJob){
+   $('customUpload').value='';
+   $('customStatus').textContent='This image could not be decoded. Please use JPEG or PNG.';
+  }
+ }finally{if(job===photoJob)setGeneratedActionBusy(false)}
+};
 function localPhotoOutline(c){let cx=c.getContext('2d'),w=c.width,h=c.height,d=cx.getImageData(0,0,w,h).data,bins=new Map();for(let y=Math.floor(h*.32);y<h*.82;y+=2)for(let x=Math.floor(w*.2);x<w*.8;x+=2){let k=(y*w+x)*4,r=d[k],g=d[k+1],b=d[k+2];if(g>r*1.14&&g>b*1.14)continue;let key=(r>>5)*64+(g>>5)*8+(b>>5);bins.set(key,(bins.get(key)||0)+1)}let key=[...bins].sort((a,b)=>b[1]-a[1])[0]?.[0]||0,color=[(key>>6)*32+16,((key>>3)&7)*32+16,(key&7)*32+16];let bg=[0,0,0],n=0;for(let y of [0,1,h-2,h-1])for(let x=0;x<w;x+=3){let k=(y*w+x)*4;for(let j=0;j<3;j++)bg[j]+=d[k+j];n++}bg=bg.map(v=>v/n);let warm=color[0]>color[2]*1.2,mask=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let k=(y*w+x)*4,r=d[k],g=d[k+1],b=d[k+2],dist=Math.hypot(r-color[0],g-color[1],b-color[2]),back=Math.hypot(r-bg[0],g-bg[1],b-bg[2]);mask[y*w+x]=d[k+3]>0&&(d[k+3]<250||back>35)&&(dist<100||warm&&r>b*1.2&&r>g*1.02)?1:0}
 let seen=new Uint8Array(w*h),best=[];for(let yy=Math.floor(h*.2);yy<h*.85;yy+=4)for(let xx=Math.floor(w*.12);xx<w*.88;xx+=4){let start=yy*w+xx;if(!mask[start]||seen[start])continue;let q=[start];seen[start]=1;for(let j=0;j<q.length;j++){let i=q[j],x=i%w,y=Math.floor(i/w);for(let next of [x>0?i-1:-1,x<w-1?i+1:-1,y>0?i-w:-1,y<h-1?i+w:-1])if(next>=0&&mask[next]&&!seen[next]){seen[next]=1;q.push(next)}}if(q.length>best.length)best=q}
 if(best.length<w*h*.025)throw Error('Could not isolate a container. Use a tightly cropped photo on a plain contrasting background.');let rows=Array.from({length:h},()=>[w,-1]);for(let i of best){let y=Math.floor(i/w),x=i%w;rows[y][0]=Math.min(rows[y][0],x);rows[y][1]=Math.max(rows[y][1],x)}let maxWidth=Math.max(...rows.map(r=>r[1]-r[0])),valid=rows.map((r,y)=>({y,l:r[0],r:r[1]})).filter(r=>r.r-r.l>maxWidth*.2),top=valid[0].y,bottom=valid[valid.length-1].y,left=Math.min(...valid.map(r=>r.l)),right=Math.max(...valid.map(r=>r.r)),rw=right-left,rh=bottom-top,scale=180/rw,points=[];let smoothX=(y,side)=>{let vals=[];for(let dy=-2;dy<=2;dy++){let r=rows[Math.max(0,Math.min(h-1,y+dy))];if(r[1]>r[0])vals.push(r[side])}return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:(side?right:left)};for(let y=top;y<=bottom;y+=Math.max(1,Math.floor(rh/45)))points.push([(smoothX(y,0)-(left+right)/2)*scale,(y-top)*scale-50]);for(let y=bottom;y>=top;y-=Math.max(1,Math.floor(rh/45)))points.push([(smoothX(y,1)-(left+right)/2)*scale,(y-top)*scale-50]);let tint='#'+color.map(v=>Math.min(255,v).toString(16).padStart(2,'0')).join('');return{points,height:rh*scale,mouth:{x:0,y:-50+Math.min(22,rh*scale*.12),rx:83,ry:Math.min(24,rh*scale*.12)},color:tint,material:warm?'wood':'plastic',wear:.4,local:true}}
@@ -636,7 +812,7 @@ function samplePhotoColours(a,source=photoPixels){
  };
  return {...a,color:sample(a.points,true)||a.color,regions:regions.map(r=>({...r,color:sample(r.points)||r.color}))};
 }
-function fromPhotoAttributes(a){let o=makeContainer(Date.now()>>>0,'foodBucket');o.custom=true;o.customName='My Container';o.collectionId='c'+Date.now();o.photoShape={points:a.points,height:a.height,mouth:a.mouth,holes:a.holes||[],regions:a.regions||[],texture:{pattern:'none'}};o.photoAnalysis={model:a.model||null,requestedModel:a.requestedModel||null,providerResponseId:a.providerResponseId||null,analysedAt:a.analysedAt||null};o.photoMarks=[];o.photoBaseTint=a.color;o.tint=a.color;o.material=a.material;o.structure.material=a.material;o.heightFactor=o.widthFactor=1;o.view={yaw:0,pitch:12,roll:0};o.transformation={...o.transformation,cut:'none',dent:0,damage:0};o.handle=false;o.band=false;o.condition.age=a.wear??.4;o.condition.scratches=Math.round(8+(a.wear??.4)*30);return o}
+function fromPhotoAttributes(a){let o=makeContainer(Date.now()>>>0,'foodBucket');o.custom=true;o.customName='My Container';o.collectionId='c'+Date.now();o.photoShape=cleanPhotoShape(a);if(!o.photoShape)throw Error('The container outline is invalid or too complex. Please re-analyse the photo.');o.photoAnalysis={model:a.model||null,requestedModel:a.requestedModel||null,providerResponseId:a.providerResponseId||null,analysedAt:a.analysedAt||null};o.photoBaseTint=a.color;o.tint=a.color;o.material=a.material;o.structure.material=a.material;o.heightFactor=o.widthFactor=1;o.view={yaw:0,pitch:12,roll:0};o.transformation={...o.transformation,cut:'none',dent:0,damage:0};o.handle=false;o.band=false;o.condition.age=a.wear??.4;o.condition.scratches=Math.round(8+(a.wear??.4)*30);return o}
 // All online analyses reach the backend, whose cache is versioned by model and schema.
 function showPhotoModel(data,source){
  const actual=typeof data.model==='string'?data.model:null,requested=data.requestedModel;
@@ -668,7 +844,7 @@ async function recognisePhoto(force=false){
  const job=++photoJob,imageKey=photoUrl,photoWidth=photoPixels.width,photoHeight=photoPixels.height;
  let timedOut=false;const timeout=setTimeout(()=>{timedOut=true;controller.abort()},55000);
  $('generatePhoto').disabled=true;$('recogniseAgain').disabled=true;$('addCustom').disabled=true;setGeneratedActionBusy(true);
- $('photoModelInfo').textContent='';$('photoModelInfo').title='';
+ if(!customDraft){$('photoModelInfo').textContent='';$('photoModelInfo').title=''}
  $('customStatus').textContent=force?'Re-analysing with AI…':'Analysing container with AI…';
  try{
   let attrs;
@@ -681,21 +857,32 @@ async function recognisePhoto(force=false){
    if(job!==photoJob||photoUrl!==imageKey)return;
    if(data.schemaVersion!==741)throw Error('AI backend is an older version. Deploy lib/ and netlify/ together with dist/.');
    if(force&&data.cached)throw Error('The server reused an analysis. Update the AI backend before re-analysing.');
-   if(!Array.isArray(data.points)||!data.mouth||!Number.isFinite(data.height))throw Error('AI returned an invalid container outline.');
-   attrs=data;showPhotoModel(data,data.cached?'Cached analysis':'New analysis');
+   if(!cleanPhotoShape(data))throw Error('AI returned invalid or oversized container geometry. Please re-analyse the photo.');
+   attrs={...data,...cleanPhotoShape(data)};showPhotoModel(data,data.cached?'Cached analysis':'New analysis');
    $('customStatus').textContent='Container analysed. Check the preview before adding.';
   }
   if(job!==photoJob||photoUrl!==imageKey)return;
   photoResult=fromPhotoAttributes(samplePhotoColours(attrs));$('customColour').value=photoResult.tint;for(const id of ['customHeight','customWidth'])$(id).value=1;
   updateCustomPreview();$('addCustom').disabled=false;
  }catch(e){if(job===photoJob&&photoUrl===imageKey)$('customStatus').textContent=timedOut?'AI recognition timed out. Please try again later.':e.name==='AbortError'?'Recognition cancelled.':e.message}
- finally{clearTimeout(timeout);if(photoRequestController===controller)photoRequestController=null;if(job===photoJob){$('generatePhoto').disabled=!photoPixels;$('recogniseAgain').disabled=!photoPixels;setGeneratedActionBusy(false)}}
+ finally{clearTimeout(timeout);if(photoRequestController===controller)photoRequestController=null;if(job===photoJob){$('generatePhoto').disabled=!photoPixels;$('recogniseAgain').disabled=!photoPixels;$('addCustom').disabled=!customDraft;setGeneratedActionBusy(false)}}
 }
 $('generatePhoto').onclick=()=>recognisePhoto(false);
 $('recogniseAgain').onclick=()=>recognisePhoto(true);
-$('customPanel').addEventListener('close',()=>{invalidatePhotoJob();photoBitmap?.close?.();photoBitmap=null});
+$('customPanel').addEventListener('close',invalidatePhotoJob);
 for(let id of ['customColour','customHeight','customWidth','customRim'])$(id).oninput=updateCustomPreview;
-$('addCustom').onclick=()=>{if(!customDraft)return;let o=JSON.parse(JSON.stringify(customDraft));if(editingCollectionId){o.collectionId=editingCollectionId;libraryContainers=libraryContainers.map(x=>x.collectionId===editingCollectionId?o:x)}else libraryContainers.push(o);saveCollection();renderCollection();$('customPanel').close()};
+$('addCustom').onclick=()=>{
+ if(!customDraft)return;
+ const previous=libraryContainers,o=JSON.parse(JSON.stringify(customDraft));
+ if(editingCollectionId){o.collectionId=editingCollectionId;libraryContainers=libraryContainers.map(x=>x.collectionId===editingCollectionId?o:x)}
+ else libraryContainers=[...libraryContainers,o];
+ if(!saveCollection()){
+  libraryContainers=previous;
+  $('customStatus').textContent='This container has not been saved. Browser storage may be full. Close this window, remove an unused collection item, and try again.';
+  return;
+ }
+ renderCollection();$('customPanel').close();
+};
 // Collection identity follows the thumbnail into its editor and deletion target.
 libraryContainers.forEach((o,i)=>{if(!o.collectionId)o.collectionId='old-'+o.seed+'-'+i});
 function designScale(){const scale=Number(document.body.style.zoom);return Number.isFinite(scale)&&scale>0?scale:1}

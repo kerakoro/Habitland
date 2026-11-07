@@ -571,34 +571,8 @@ function drawWood(o,g){ctx.save();ctx.clip(g.p);for(let i=0;i<12;i++){let x=-g.w
 
 // Garden interactions: collections, seed selection and per-container planting.
 let seedSelection=new Set(['mixed']),homeSeedSelection=new Set(['mixed']),libraryContainers=[],historyContainers=[],activeVariant=null,hasInteracted=false;
-// Validate stored photo geometry before it reaches Canvas or colour sampling.
-function cleanPhotoShape(shape){
- const point=p=>Array.isArray(p)&&p.length===2&&p.every(v=>Number.isFinite(v)&&Math.abs(v)<=100000);
- const polygon=(p,max)=>Array.isArray(p)&&p.length>=3&&p.length<=max&&p.every(point);
- const m=shape?.mouth;
- if(!shape||!polygon(shape.points,128)||!Number.isFinite(shape.height)||shape.height<=0||shape.height>100000||
-  !m||!['x','y','rx','ry'].every(k=>Number.isFinite(m[k])&&Math.abs(m[k])<=100000)||m.rx<=0||m.ry<=0)return null;
- const regions=(Array.isArray(shape.regions)?shape.regions:[]).slice(0,10).filter(r=>polygon(r?.points,48)&&/^#[0-9a-f]{6}$/i.test(r.color)).map(r=>({
-  points:r.points,color:r.color,pattern:r.pattern==='woven'&&Number.isFinite(r.patternConfidence)&&r.patternConfidence>=.85?'woven':'none',
-  patternConfidence:Number.isFinite(r.patternConfidence)?clamp(r.patternConfidence):0,
-  weaveDensity:Number.isFinite(r.weaveDensity)?clamp(r.weaveDensity):.4,
-  weaveAngle:Number.isFinite(r.weaveAngle)?Math.max(-90,Math.min(90,r.weaveAngle)):0
- }));
- return {points:shape.points,height:shape.height,mouth:{x:m.x,y:m.y,rx:m.rx,ry:m.ry,visible:m.visible!==false},
-  holes:(Array.isArray(shape.holes)?shape.holes:[]).slice(0,8).filter(p=>polygon(p,48)),regions};
-}
-function readContainerStore(key,history=false){
- try{
-  const data=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(data))return [];
-  return (history?data.slice(-12):data).filter(o=>{
-   if(!o||!RULES[o.type]||!o.structure||!o.view||!o.condition||!o.transformation||!Number.isFinite(o.seed)||!Number.isFinite(o.scale)||o.scale<=0)return false;
-   if(o.photoShape){const shape=cleanPhotoShape(o.photoShape);if(!shape)return false;o.photoShape=shape;delete o.photoMarks}
-   return true;
-  });
- }catch(e){return []}
-}
-historyContainers=readContainerStore('habitland-history-v1',true);
-libraryContainers=readContainerStore('habitland-collected-v2');
+try{historyContainers=JSON.parse(localStorage.getItem('habitland-history-v1')||'[]').filter(o=>o&&RULES[o.type]&&o.structure)}catch(e){}
+try{libraryContainers=JSON.parse(localStorage.getItem('habitland-collected-v2')||'[]').filter(o=>o&&RULES[o.type]&&o.structure)}catch(e){}
 const seedNames={mixed:'Random',vine:'Loofa',basil:'Basil',onion:'Spring Onion',mint:'Mint',succulent:'Succulent',rosemary:'Rosemary',cabbage:'Pak Choi',lettuce:'Lettuce',celery:'Celery',pea:'Pea Shoots',kale:'Kale',spinach:'Spinach',coriander:'Coriander',tomato:'Tomato',chilli:'Chilli',aloe:'Aloe',parsley:'Parsley',chives:'Chives',carrot:'Carrot',kalanchoe:'Kalanchoe'};
 PLANTS.chives='Chives';
 function lineIcon(k){let leaf='<path d="M32 53C4 40 12 11 32 5C52 15 60 36 32 53Z M32 54V7 M32 21L20 15 M32 31L45 23 M32 41L18 31"/>';let drawing=leaf;
@@ -639,23 +613,16 @@ finishPointer=function(e,cancel=false){if(!drag||drag.id!==e.pointerId)return;le
 updateCursor=function(e){if(viewMode==='single'){let p=e?canvasPoint(e):null;canvas.style.cursor=p&&layerHit(singleHitLayer,p.x,p.y)?'pointer':'default';return}if(drag){canvas.style.cursor='grabbing';return}let p=e?canvasPoint(e):null;canvas.style.cursor=p&&hitSpecimen(p)>=0?'grab':'default'};
 function addToGarden(o,p){interact();let clone=JSON.parse(JSON.stringify(o));if(o.collectionId||o.historyId){clone.scale*=containerThumbnail(o).gardenScaleRatio}items.push(clone);positions.push(p||{x:200+400*((items.length-1)%5),y:310+300*(Math.floor((items.length-1)/5)%3)});layerOrder.push(items.length-1);selectedIndex=items.length-1;setView('plate');notice('Container added to my garden.')}
 const thumbnailCache=new Map();
-const THUMBNAIL_CACHE_BYTES=24*1024*1024;let thumbnailCacheBytes=0;
 function copyThumbnail(source){let c=document.createElement('canvas');c.width=source.width;c.height=source.height;c.getContext('2d').drawImage(source,0,0);c.gardenScaleRatio=source.gardenScaleRatio;return c}
 function containerThumbnail(o){
- let ratio=Math.max(4,Math.min(6,Math.ceil((window.devicePixelRatio||1)*(document.documentElement.clientWidth/1512)))),pixels=120*ratio,key=JSON.stringify([ratio,o.seed,o.type,o.tint,o.scale,o.structure,o.condition,o.view,o.transformation,o.material,o.photoShape,o.widthFactor,o.heightFactor]);
- if(thumbnailCache.has(key)){const cached=thumbnailCache.get(key);thumbnailCache.delete(key);thumbnailCache.set(key,cached);return copyThumbnail(cached);}
+ let ratio=Math.max(4,Math.min(6,Math.ceil((window.devicePixelRatio||1)*(document.documentElement.clientWidth/1512)))),pixels=120*ratio,key=JSON.stringify([ratio,o.seed,o.type,o.tint,o.scale,o.structure,o.condition,o.view,o.transformation,o.material,o.photoShape,o.photoMarks,o.widthFactor,o.heightFactor]);
+ if(thumbnailCache.has(key))return copyThumbnail(thumbnailCache.get(key));
  let layer=makeLayer(o,512,512,256,270,1.2),a=layer.getContext('2d').getImageData(0,0,512,512).data,l=512,r=0,t=512,b=0;
  for(let y=0;y<512;y++)for(let x=0;x<512;x++)if(a[(y*512+x)*4+3]>15){l=Math.min(l,x);r=Math.max(r,x);t=Math.min(t,y);b=Math.max(b,y)}
  let w=Math.max(1,r-l+1),h=Math.max(1,b-t+1),fit=Math.min((112*ratio)/w,(112*ratio)/h),x=(pixels-w*fit)/2+(256-l)*fit,y=(pixels-h*fit)/2+(270-t)*fit;
  // Draw vectors again at full resolution, rather than enlarging a low-resolution bitmap.
  let thumb=makeLayer(o,pixels,pixels,x,y,1.2*fit);thumb.gardenScaleRatio=1.2*fit/ratio/(1.25*(1320/2000));
- thumbnailCache.set(key,thumb);thumbnailCacheBytes+=thumb.width*thumb.height*4;
- while(thumbnailCacheBytes>THUMBNAIL_CACHE_BYTES||thumbnailCache.size>32){
-  const oldest=thumbnailCache.keys().next().value,expired=thumbnailCache.get(oldest);
-  thumbnailCacheBytes-=expired.width*expired.height*4;thumbnailCache.delete(oldest);
-  expired.width=expired.height=0;
- }
- return copyThumbnail(thumb);
+ thumbnailCache.set(key,thumb);if(thumbnailCache.size>96)thumbnailCache.delete(thumbnailCache.keys().next().value);return copyThumbnail(thumb);
 }
 function collectionThumbnail(source){return source}
 let showTypes,showVariants;
@@ -693,29 +660,16 @@ function drawObservedWeave(o,points,region){
  if(region.pattern!=='woven'||!(region.patternConfidence>=.85))return;
  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
  const extent=Math.hypot(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))/2+3;
- // Keep each strand readable in the small collection and garden previews.
- const density=Math.max(0,Math.min(1,Number.isFinite(region.weaveDensity)?region.weaveDensity:.4));
- const count=Math.max(1,Math.min(10,(o.photoShape?.regions||[region]).filter(r=>r.pattern==='woven'&&r.patternConfidence>=.85).length));
- const side=Math.max(5,Math.floor(Math.sqrt(1400/count))-1);
- const step=Math.max(6.2,8.6-density*2.2,2*extent/side);
+ const step=Math.max(4.5,8-(region.weaveDensity??.4)*3.5,extent/24);
  const col=photoSurfaceColour(region.color,o),rgb=[1,3,5].map(i=>parseInt(col.slice(i,i+2),16));
- const tone=delta=>colour?'#'+rgb.map(v=>Math.max(0,Math.min(255,v+delta)).toString(16).padStart(2,'0')).join(''):delta<0?'#746f63':'#c8c2b0';
- const saved=random;random=rng(o.seed^0x746ce);
+ const tone=delta=>colour?'#'+rgb.map(v=>Math.max(0,Math.min(255,v+delta)).toString(16).padStart(2,'0')).join(''):'#878174';
  ctx.save();ctx.clip(path(points));ctx.translate(cx,cy);ctx.rotate((region.weaveAngle||0)*Math.PI/180);
- // Alternating over/under strands, with a narrow shadow and a lit upper edge.
- for(let row=0,y=-extent;y<=extent;y+=step,row++)for(let column=0,x=-extent;x<=extent;x+=step,column++){
-  const xx=x+(row%2)*step*.5,half=step*.43,warp=step*.40;
-  const horizontal=[[xx-half,y],[xx,y+.3],[xx+half,y]];
-  const vertical=[[xx,y-warp],[xx+.25,y],[xx,y+warp]];
-  const strand=(line,across)=>{
-   sketch(line.map(([x,y])=>[x+(across?0:.6),y+(across?.65:0)]),{width:1.65,alpha:.58,ink:tone(-49),passes:1});
-   sketch(line,{width:1.1,alpha:.72,ink:tone(18),passes:1});
-   sketch(line.map(([x,y])=>[x-(across?0:.25),y-(across?.27:0)]),{width:.48,alpha:.65,ink:tone(43),passes:1});
-  };
-  if((row+column)%2){strand(horizontal,true);strand(vertical,false)}
-  else{strand(vertical,false);strand(horizontal,true)}
+ // Short, staggered strand segments suggest interlacing without stamping a checkerboard.
+ for(let row=0,y=-extent;y<=extent;y+=step,row++)for(let x=-extent;x<=extent;x+=step){
+  const offset=(row%2)*step*.5,xx=x+offset;
+  sketch([[xx-step*.45,y],[xx,y+.5],[xx+step*.45,y]],{width:.7,alpha:.28,ink:tone(-34),passes:1});
+  if(row%2===Math.round(x/step)%2)sketch([[xx,y-step*.42],[xx+.35,y+step*.42]],{width:.7,alpha:.3,ink:tone(30),passes:1});
  }
- random=saved;
  ctx.restore();
 }
 function drawPhotoContainer(o,x,y,size){
@@ -737,10 +691,7 @@ function drawPhotoContainer(o,x,y,size){
 }
 
 function saveHistory(){try{localStorage.setItem('habitland-history-v1',JSON.stringify(historyContainers))}catch(e){notice('History is available for this session only.')}}
-function saveCollection(){
- try{localStorage.setItem('habitland-collected-v2',JSON.stringify(libraryContainers));return true}
- catch(e){notice('The collection could not be saved. Browser storage may be full. Remove an unused container and try again.');return false}
-}
+function saveCollection(){try{localStorage.setItem('habitland-collected-v2',JSON.stringify(libraryContainers))}catch(e){notice('Browser storage is unavailable.')}}
 let photoJob=0,photoRequestController=null;
 function setGeneratedActionBusy(busy){
  const action=$('generatedPlaceholder');action.disabled=busy||!photoPixels;action.textContent=busy?'Generating…':'Generate';
@@ -812,7 +763,7 @@ function samplePhotoColours(a,source=photoPixels){
  };
  return {...a,color:sample(a.points,true)||a.color,regions:regions.map(r=>({...r,color:sample(r.points)||r.color}))};
 }
-function fromPhotoAttributes(a){let o=makeContainer(Date.now()>>>0,'foodBucket');o.custom=true;o.customName='My Container';o.collectionId='c'+Date.now();o.photoShape=cleanPhotoShape(a);if(!o.photoShape)throw Error('The container outline is invalid or too complex. Please re-analyse the photo.');o.photoAnalysis={model:a.model||null,requestedModel:a.requestedModel||null,providerResponseId:a.providerResponseId||null,analysedAt:a.analysedAt||null};o.photoBaseTint=a.color;o.tint=a.color;o.material=a.material;o.structure.material=a.material;o.heightFactor=o.widthFactor=1;o.view={yaw:0,pitch:12,roll:0};o.transformation={...o.transformation,cut:'none',dent:0,damage:0};o.handle=false;o.band=false;o.condition.age=a.wear??.4;o.condition.scratches=Math.round(8+(a.wear??.4)*30);return o}
+function fromPhotoAttributes(a){let o=makeContainer(Date.now()>>>0,'foodBucket');o.custom=true;o.customName='My Container';o.collectionId='c'+Date.now();o.photoShape={points:a.points,height:a.height,mouth:a.mouth,holes:a.holes||[],regions:a.regions||[],texture:{pattern:'none'}};o.photoAnalysis={model:a.model||null,requestedModel:a.requestedModel||null,providerResponseId:a.providerResponseId||null,analysedAt:a.analysedAt||null};o.photoMarks=[];o.photoBaseTint=a.color;o.tint=a.color;o.material=a.material;o.structure.material=a.material;o.heightFactor=o.widthFactor=1;o.view={yaw:0,pitch:12,roll:0};o.transformation={...o.transformation,cut:'none',dent:0,damage:0};o.handle=false;o.band=false;o.condition.age=a.wear??.4;o.condition.scratches=Math.round(8+(a.wear??.4)*30);return o}
 // All online analyses reach the backend, whose cache is versioned by model and schema.
 function showPhotoModel(data,source){
  const actual=typeof data.model==='string'?data.model:null,requested=data.requestedModel;
@@ -857,8 +808,8 @@ async function recognisePhoto(force=false){
    if(job!==photoJob||photoUrl!==imageKey)return;
    if(data.schemaVersion!==741)throw Error('AI backend is an older version. Deploy lib/ and netlify/ together with dist/.');
    if(force&&data.cached)throw Error('The server reused an analysis. Update the AI backend before re-analysing.');
-   if(!cleanPhotoShape(data))throw Error('AI returned invalid or oversized container geometry. Please re-analyse the photo.');
-   attrs={...data,...cleanPhotoShape(data)};showPhotoModel(data,data.cached?'Cached analysis':'New analysis');
+   if(!Array.isArray(data.points)||!data.mouth||!Number.isFinite(data.height))throw Error('AI returned an invalid container outline.');
+   attrs=data;showPhotoModel(data,data.cached?'Cached analysis':'New analysis');
    $('customStatus').textContent='Container analysed. Check the preview before adding.';
   }
   if(job!==photoJob||photoUrl!==imageKey)return;
@@ -871,18 +822,7 @@ $('generatePhoto').onclick=()=>recognisePhoto(false);
 $('recogniseAgain').onclick=()=>recognisePhoto(true);
 $('customPanel').addEventListener('close',invalidatePhotoJob);
 for(let id of ['customColour','customHeight','customWidth','customRim'])$(id).oninput=updateCustomPreview;
-$('addCustom').onclick=()=>{
- if(!customDraft)return;
- const previous=libraryContainers,o=JSON.parse(JSON.stringify(customDraft));
- if(editingCollectionId){o.collectionId=editingCollectionId;libraryContainers=libraryContainers.map(x=>x.collectionId===editingCollectionId?o:x)}
- else libraryContainers=[...libraryContainers,o];
- if(!saveCollection()){
-  libraryContainers=previous;
-  $('customStatus').textContent='This container has not been saved. Browser storage may be full. Close this window, remove an unused collection item, and try again.';
-  return;
- }
- renderCollection();$('customPanel').close();
-};
+$('addCustom').onclick=()=>{if(!customDraft)return;let o=JSON.parse(JSON.stringify(customDraft));if(editingCollectionId){o.collectionId=editingCollectionId;libraryContainers=libraryContainers.map(x=>x.collectionId===editingCollectionId?o:x)}else libraryContainers.push(o);saveCollection();renderCollection();$('customPanel').close()};
 // Collection identity follows the thumbnail into its editor and deletion target.
 libraryContainers.forEach((o,i)=>{if(!o.collectionId)o.collectionId='old-'+o.seed+'-'+i});
 function designScale(){const scale=Number(document.body.style.zoom);return Number.isFinite(scale)&&scale>0?scale:1}

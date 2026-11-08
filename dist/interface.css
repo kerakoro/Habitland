@@ -110,7 +110,7 @@ dialog,dialog button,dialog label,dialog input,#customTitle,.photo-controls labe
 #otherList .object-card span,#historyList .object-card span{display:none}
 #moreHint{left:921px;width:114.64px;height:45.31px}
 #collectedSection{margin-top:50px;padding-bottom:100px;height:auto}
-#collectedList{margin-top:30px;column-gap:110px;row-gap:50px;padding-left:25px}
+#collectedList{display:grid;grid-template-columns:repeat(6,120px);width:1270px;margin:30px 25px 0;padding:0;column-gap:110px;row-gap:50px}
 #collectedList .object-card,#collectedList .object-card canvas{width:120px;height:120px;margin:0}
 #collectedList .upload-tile{width:120px;height:120px}
 #collectedList .upload-tile>svg.design-vector{width:120px;height:120px}
@@ -138,7 +138,8 @@ body.single-view #canvasTools{width:218.28px}
 body.single-view #canvasTools #resetPlant{left:107.29px!important}
 body.single-view #canvasTools #new,body.single-view #canvasTools #clearGarden,body.single-view #canvasTools #trash{display:none!important}
 #helpPanel #closeHelp{left:auto!important;right:24.1px!important;top:23.5px}
-#collectedList .upload-controls{display:flex;align-items:flex-end;gap:46.85px;flex-shrink:0}
+#collectedList .upload-controls{position:relative;width:120px;height:120px}
+#collectedList .upload-controls .collection-trash{position:absolute;left:166.85px;bottom:0;margin:0}
 /* Match the 1320 × 748 drawing frame in the new four-page layout. */
 main,#canvas{height:748px}
 #publishPage #publishPreview,#publishPage:has(#titleForm:not([hidden])) #publishPreview{height:566.6667px}

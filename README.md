@@ -1,14 +1,14 @@
-# Where Habits Take Root — 7.49
+# Where Habits Take Root — 7.51
 
 7.45 修复换照片失败后仍显示上一次预览的问题。重新分析同一张照片失败时，可以继续使用上一次成功生成的容器。保留 7.44 的复古水壶和左右视角，旧水壶数据仍可读取。
 
 ## 更新已有站点
 
-如果线上已是 7.48，本次只需替换 `dist/interface.css`，然后提交并重新部署。README 可选更新。更早版本建议使用完整包以保留之前修复。
+本包为完整 7.51 部署文件。将 `Where_Habit_Take_Root` 文件夹内的全部内容覆盖到已连接 Netlify 的 GitHub 仓库根目录，保留目录结构。确认 `dist/interface.js` 包含 `j_Hi21O5q2I`，提交后部署。若已使用完整 7.50，本次运行代码仅修改 `dist/interface.js`。
 
 ## 首次部署
 
-1. 解压 `Where_Habit_Take_Root_7.49_Netlify.zip`，将 `Where_Habit_Take_Root` 内的文件上传到 GitHub 仓库根目录，保留 `dist/`、`lib/`、`netlify/` 的目录结构。
+1. 解压 `Where_Habit_Take_Root_7.51_Netlify.zip`，将 `Where_Habit_Take_Root` 内的文件上传到 GitHub 仓库根目录，保留 `dist/`、`lib/`、`netlify/` 的目录结构。
 2. 将 Netlify 项目连接到仓库和部署分支。根目录 `netlify.toml` 指定发布目录为 `dist`，函数目录为 `netlify/functions`。
 3. 在 Netlify 为 Functions 设置 `OPENAI_API_KEY`。默认模型由 `lib/photo-ai.mjs` 定义，可用 `OPENAI_MODEL` 覆盖。密钥只存放在环境变量。
 4. 部署后访问站点的 `/api/analyse`。GET 返回配置状态和模型名称，无需调用模型；上传照片并点击 Generate 才能验证实际识别。
@@ -39,3 +39,13 @@ Film 播放器改为 r9GTvZue5Ks。若线上为 7.47，只需替换 dist/interfa
 ## 7.49 收藏区排列
 
 收藏区统一为每行六格，上传框紧接最后一个容器。垃圾桶在上传框右侧独立定位，不再撑宽上传框所在的格子。五个收藏时上传框在第一行第六格，六个收藏时移至第二行第一格。无需清除已有收藏。
+
+
+## 7.50 Film 影片链接
+
+Film 链接更新为 https://youtu.be/WPeUfdYVzKM 。保留播放器原有布局及离页暂停行为。
+
+
+## 7.51 Film 影片链接
+
+Film 更新为 https://youtu.be/j_Hi21O5q2I 。保留收藏区六列排列和此前修复。
